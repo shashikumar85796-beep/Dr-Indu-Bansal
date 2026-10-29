@@ -539,3 +539,5 @@ h2{font-size:clamp(30px,3.4vw,44px)}
 @media (max-width:1439px){.nv .lg small{display:none}.lg b{font-size:24px}}
 @media (max-width:1180px){.mn{font-size:14.5px}.mn a{padding:10px 7px}.mn a::after{left:7px;right:7px}.nv>.btn{padding:11px 14px;font-size:14px}}
 @media (min-width:901px) and (max-width:1040px){.nv>.btn{display:none}}
+/* Entrance fade ends fully visible (the base .ld rule starts at opacity 0). */
+.ld{opacity:1;transform:none}
