@@ -1,4 +1,5 @@
-import { getRole } from '@/lib/auth';
+import { getSession } from '@/lib/auth';
+import { can, isManager } from '@/lib/roles';
 import { getContent, getSubmissions } from '@/lib/store';
 
 const csvCell = (v: string) => {
@@ -8,11 +9,11 @@ const csvCell = (v: string) => {
 };
 
 export async function GET(req: Request) {
-  const role = await getRole();
-  if (!role) return new Response('Unauthorised', { status: 401 });
+  const session = await getSession();
+  if (!session) return new Response('Unauthorised', { status: 401 });
   const type = new URL(req.url).searchParams.get('type');
-  // Full content backups are for the owner; the editor can export the inbox.
-  if (type !== 'submissions' && role !== 'owner') return new Response('Forbidden', { status: 403 });
+  // Full backups are for the admin; enquiries need enquiry access.
+  if (type === 'submissions' ? !can(session, 'inbox') : !isManager(session)) return new Response('Forbidden', { status: 403 });
   const stamp = new Date().toISOString().slice(0, 10);
 
   if (type === 'submissions') {

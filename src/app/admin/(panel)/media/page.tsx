@@ -1,9 +1,11 @@
 import { MediaLibrary } from '@/components/admin/MediaLibrary';
+import { requirePerm } from '@/lib/auth';
 import { getContent, listUploads } from '@/lib/store';
 
 export const metadata = { title: 'Media library' };
 
 export default async function MediaPage() {
+  await requirePerm('media');
   const [uploads, c] = await Promise.all([listUploads(), getContent()]);
   const json = JSON.stringify(c);
   const files = uploads.map((u) => ({ ...u, used: json.includes(u.url) }));

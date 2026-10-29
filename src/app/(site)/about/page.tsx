@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import Link from 'next/link';
 import { Band, Connect, Hd, PageHead, Sec, StatStrip } from '@/components/site/blocks';
 import { SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
 import { paragraphs, visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'About',
+  share: 'About Dr. Indu Bansal',
   description: 'Biography of Dr. Indu Bansal, journalist and documentary filmmaker from Sonipat, Haryana, founder of Shramjeevi Patrakar Sangh Haryana.',
-  alternates: { canonical: '/about' },
-};
+  path: '/about',
+});
 
 export default async function About() {
   const c = await getContent();

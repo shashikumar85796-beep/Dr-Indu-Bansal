@@ -18,11 +18,10 @@ npm run start
 
 ## Admin sign-in
 
-- There are two logins:
-  - **Owner** (`SUPERADMIN_USERNAME`, default `owner`, and `SUPERADMIN_PASSWORD`): full control, including site settings, the Sangh pages, page sections, backups and the editor's login.
-  - **Editor** (`ADMIN_USERNAME`, default `admin`, and `ADMIN_PASSWORD`): daily content only. That covers news and blog, press coverage, photos (including bulk upload), videos, achievements, partner logos and the inbox.
-- Set them in `.env.local` locally, or in Vercel's environment variables for the live site. In development you can also create the first owner login on `/admin/login`.
-- Each user changes their own login under **Admin → My account**; the owner can also set the editor's login there. Saved logins replace the environment variables.
+- **Owner** (, default , and ): the site maintainer. Full control, plus setting the admin's login.
+- **Admin** (, default , and ): the client. Full control of the website, including settings, team and backups.
+- **Team members**: created by the owner or admin under **Team & access**, each with only the sections ticked for them (news, photos & videos, achievements, partner logos, Sangh pages, page sections, enquiries, analytics, settings). Changing or removing a member signs them out at once.
+- Each user changes their own login under **My account**. Saved logins replace the environment variables. In development you can also create the first owner login on .
 - Never put real login details in the code: this repository is public.
 
 ## What the dashboard manages
@@ -33,7 +32,7 @@ npm run start
 | Updates & news | Stories with cover photo, category, date, body and source link. Each gets its own page at `/updates/<address>` |
 | Videos, Photo gallery, Awards & roles, Milestones | Full lists with photos/icons |
 | Page sections | What I do, initiatives, About highlights, stats strips, membership benefits, “In the news” names |
-| Inbox | Contact and membership form messages, with read/unread, search, reply links and CSV export |
+| Enquiries | Every Contact and Join form message, with tabs, read/unread, search, reply links and CSV export |
 | Media library | Drag-and-drop uploads (JPG, PNG, WebP, GIF, AVIF up to 10 MB), usage check, delete |
 | Backup & restore | Download/restore all content as one JSON file |
 

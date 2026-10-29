@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import Link from 'next/link';
 import { Band, Connect, Credentials, DemandCard, Hd, PageHead, Sec, UnitCard } from '@/components/site/blocks';
 import { Icon } from '@/components/site/Icon';
@@ -6,11 +7,12 @@ import { SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Shramjeevi Patrakar Sangh Haryana',
+  share: 'Shramjeevi Patrakar Sangh Haryana',
   description: 'District units, demands and work of Shramjeevi Patrakar Sangh Haryana, founded and led by Dr. Indu Bansal.',
-  alternates: { canonical: '/sangh' },
-};
+  path: '/sangh',
+});
 
 export default async function Sangh() {
   const c = await getContent();

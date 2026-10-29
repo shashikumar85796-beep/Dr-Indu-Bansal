@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { AwardCard, Connect, Hd, Logos, PageHead, Sec } from '@/components/site/blocks';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Awards',
+  share: 'Awards & honours',
   description: 'Awards, honours and roles of Dr. Indu Bansal, including Best Journalist awards from the Governor and Chief Minister of Haryana.',
-  alternates: { canonical: '/awards' },
-};
+  path: '/awards',
+});
 
 export default async function Awards() {
   const c = await getContent();

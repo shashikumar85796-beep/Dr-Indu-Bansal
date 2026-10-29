@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { Connect, CoverageCard, Logos, PageHead, Sec } from '@/components/site/blocks';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'In the News',
+  share: 'In the News',
   description: 'News reports about Dr. Indu Bansal and Shramjeevi Patrakar Sangh Haryana from newspapers and news websites.',
-  alternates: { canonical: '/press' },
-};
+  path: '/press',
+});
 
 export default async function Press() {
   const c = await getContent();

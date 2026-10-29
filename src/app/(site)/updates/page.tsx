@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { Connect, PageHead } from '@/components/site/blocks';
 import { UpdatesBrowser } from '@/components/site/UpdatesBrowser';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Updates',
+  share: 'Latest updates',
   description: 'News and updates from Shramjeevi Patrakar Sangh Haryana and Dr. Indu Bansal: insurance for journalists, district units and the journalists’ movement.',
-  alternates: { canonical: '/updates' },
-};
+  path: '/updates',
+});
 
 export default async function Updates() {
   const c = await getContent();

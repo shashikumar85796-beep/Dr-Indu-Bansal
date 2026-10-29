@@ -1,15 +1,17 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { PageHead, Sec } from '@/components/site/blocks';
 import { ContactForm } from '@/components/site/Forms';
 import { Icon } from '@/components/site/Icon';
 import { getContent } from '@/lib/store';
 import { lines } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Contact',
+  share: 'Contact Dr. Indu Bansal',
   description: 'Contact Dr. Indu Bansal for story tips, media enquiries, collaborations and Sangh membership.',
-  alternates: { canonical: '/contact' },
-};
+  path: '/contact',
+});
 
 export default async function Contact() {
   const { settings: s } = await getContent();

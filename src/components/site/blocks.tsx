@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 import type { Award, Coverage, Demand, Feature, Settings, Stat, Story, TextItem, Unit, Video } from '@/lib/types';
-import { isNumeric, lines, videoThumb } from '@/lib/utils';
+import { isNumeric, lines, videoThumb, waLink } from '@/lib/utils';
+import { BrandIcon, brandColor } from './BrandIcon';
 import { Icon } from './Icon';
 import { Photo, SmartImg } from './Photo';
 
@@ -153,20 +154,9 @@ export function Logos({ s, items }: { s: Settings; items: TextItem[] }) {
   );
 }
 
-const SOCIAL_ICONS: Record<string, string> = {
-  Facebook: 'M14 8h3V4h-3c-2.2 0-4 1.8-4 4v2H8v4h2v6h4v-6h3l1-4h-4V8z',
-  X: 'M4 4l16 16M20 4L4 20',
-  Instagram: 'M7 3h10a4 4 0 0 1 4 4v10a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V7a4 4 0 0 1 4-4zm5 5a4 4 0 1 0 0 8 4 4 0 0 0 0-8zm5.5-1.5h.01',
-  YouTube: 'M3 8.5C3 6.6 4.6 5 6.5 5h11C19.4 5 21 6.6 21 8.5v7c0 1.9-1.6 3.5-3.5 3.5h-11C4.6 19 3 17.4 3 15.5zM10 9v6l5-3z',
-  LinkedIn: 'M4 9h4v11H4zM6 4a2 2 0 1 1 0 4 2 2 0 0 1 0-4zM10 9h4v1.6c.6-1 1.8-1.8 3.5-1.8 2.8 0 3.5 1.8 3.5 4.3V20h-4v-6c0-1.3-.4-2.2-1.6-2.2-1.3 0-1.4 1-1.4 2.2v6h-4z',
-};
-
-export function SocialIcon({ name }: { name: string }) {
-  return (
-    <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-      <path d={SOCIAL_ICONS[name]} />
-    </svg>
-  );
+/** Official brand mark for a social network. */
+export function SocialIcon({ name, size = 18 }: { name: string; size?: number }) {
+  return <BrandIcon name={name} size={size} />;
 }
 
 export const socialLinks = (s: Settings): [string, string][] =>
@@ -180,12 +170,15 @@ export const socialLinks = (s: Settings): [string, string][] =>
     ] as [string, string][]
   ).filter(([href]) => href);
 
-export function Socials({ s }: { s: Settings }) {
+/** Round buttons in each network's own colour, with its official mark. */
+export function Socials({ s, size = 18, withWhatsApp }: { s: Settings; size?: number; withWhatsApp?: boolean }) {
+  const links = socialLinks(s);
+  if (withWhatsApp && s.whatsapp) links.push([waLink(s.whatsapp, s.waGreeting), 'WhatsApp']);
   return (
     <div className="so">
-      {socialLinks(s).map(([href, label]) => (
-        <a key={label} href={href} target="_blank" rel="noopener" aria-label={label} title={label}>
-          <SocialIcon name={label} />
+      {links.map(([href, label]) => (
+        <a key={label} href={href} target="_blank" rel="noopener" aria-label={label} title={label} style={{ '--brand': brandColor(label) } as React.CSSProperties}>
+          <SocialIcon name={label} size={size} />
         </a>
       ))}
     </div>
@@ -196,9 +189,6 @@ export function Connect({ s }: { s: Settings }) {
   return (
     <div className="w">
       <div className="cn rv">
-        <div className="pen" aria-hidden="true">
-          ✒
-        </div>
         <div className="tx">
           <h3>{s.connectTitle}</h3>
           <p>{s.connectText}</p>

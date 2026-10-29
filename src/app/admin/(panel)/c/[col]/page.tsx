@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { requireAdmin } from '@/lib/auth';
-import { canEdit } from '@/lib/roles';
+import { requireSession } from '@/lib/auth';
+import { canEditCollection } from '@/lib/roles';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { BulkPhotos } from '@/components/admin/BulkPhotos';
@@ -15,7 +15,7 @@ type Props = { params: Promise<{ col: string }> };
 export default async function CollectionPage({ params }: Props) {
   const { col } = await params;
   if (!isCollection(col)) notFound();
-  if (!canEdit(await requireAdmin(), col)) redirect('/admin?denied=1');
+  if (!canEditCollection(await requireSession(), col)) redirect('/admin?denied=1');
   const def = COLLECTIONS[col];
   const content = await getContent();
   const items = content[col] as unknown as AnyItem[];

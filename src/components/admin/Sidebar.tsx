@@ -4,7 +4,9 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import { logoutAction } from '@/app/admin/actions';
-import { ROLE_LABEL, isTabActive, sectionOf, sectionsFor, type Role } from '@/lib/roles';
+import { ROLE_LABEL, can, isManager, isTabActive, sectionOf, sectionsFor, type Perm, type Session } from '@/lib/roles';
+
+const SITE_SECTIONS: Perm[] = ['sangh', 'sections'];
 
 const ICON: Record<string, string> = {
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
@@ -29,17 +31,19 @@ export function Sidebar({
   logoFirst,
   logoAccent,
   unread,
-  role,
-  username,
+  session,
   children,
 }: {
   logoFirst: string;
   logoAccent: string;
   unread: number;
-  role: Role;
-  username: string;
+  session: Session;
   children: ReactNode;
 }) {
+  const { role, username } = session;
+  const sections = sectionsFor(session);
+  const content = sections.filter((s) => !SITE_SECTIONS.includes(s.id));
+  const site = sections.filter((s) => SITE_SECTIONS.includes(s.id));
   const path = usePathname();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
@@ -84,25 +88,22 @@ export function Sidebar({
           </div>
 
           <L href="/admin" label="Dashboard" icon="home" />
-          <L href="/admin/analytics" label="Analytics" icon="chart" />
-          <L href="/admin/inbox" label="Inbox" icon="inbox" badge={unread} />
+          {can(session, 'inbox') ? <L href="/admin/inbox" label="Enquiries" icon="inbox" badge={unread} /> : null}
+          {can(session, 'analytics') ? <L href="/admin/analytics" label="Analytics" icon="chart" /> : null}
 
-          <div className="a-grp">Content</div>
-          {sectionsFor(role)
-            .filter((s) => !s.ownerOnly)
-            .map((s) => (
-              <L key={s.id} href={s.tabs[0].href} label={s.label} icon={s.icon} on={current?.id === s.id} />
-            ))}
+          {content.length ? <div className="a-grp">Content</div> : null}
+          {content.map((s) => (
+            <L key={s.id} href={s.tabs[0].href} label={s.label} icon={s.icon} on={current?.id === s.id} />
+          ))}
 
-          {role === 'owner' ? (
+          {site.length || can(session, 'settings') || isManager(session) ? <div className="a-grp">Website</div> : null}
+          {site.map((s) => (
+            <L key={s.id} href={s.tabs[0].href} label={s.label} icon={s.icon} on={current?.id === s.id} />
+          ))}
+          {can(session, 'settings') ? <L href="/admin/settings" label="Site settings" icon="settings" /> : null}
+          {isManager(session) ? (
             <>
-              <div className="a-grp">Site · owner only</div>
-              {sectionsFor(role)
-                .filter((s) => s.ownerOnly)
-                .map((s) => (
-                  <L key={s.id} href={s.tabs[0].href} label={s.label} icon={s.icon} on={current?.id === s.id} />
-                ))}
-              <L href="/admin/settings" label="Site settings" icon="settings" />
+              <L href="/admin/team" label="Team & access" icon="us" />
               <L href="/admin/backup" label="Backup & restore" icon="backup" />
             </>
           ) : null}

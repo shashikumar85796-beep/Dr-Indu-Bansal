@@ -2,8 +2,24 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { assertCanEdit, assertOwner, assertRole, canSetupFromUi, checkLogin, checkPasswordFor, createSession, destroySession, hasPassword, setLogin } from '@/lib/auth';
-import type { Role } from '@/lib/roles';
+import {
+  assertCollection,
+  assertManager,
+  assertOwner,
+  assertPerm,
+  assertSession,
+  canSetupFromUi,
+  checkLogin,
+  checkOwnPassword,
+  createSession,
+  deleteMember,
+  destroySession,
+  hasPassword,
+  saveMember,
+  setLogin,
+  setMemberLogin,
+} from '@/lib/auth';
+import type { Session } from '@/lib/roles';
 import { allow, clientIp } from '@/lib/ratelimit';
 import { COLLECTIONS, SETTINGS_FIELDS, isCollection, type Field } from '@/lib/schema';
 import { getContent, normalize, removeUpload, updateContent, updateSubmissions } from '@/lib/store';
@@ -45,19 +61,19 @@ export async function loginAction(_: unknown, fd: FormData): Promise<{ error?: s
   if (!allow(`login:${ip}`, 8, 15 * 60_000)) return { error: 'Too many attempts. Please wait 15 minutes.' };
   const username = String(fd.get('username') || '');
   const password = String(fd.get('password') || '');
-  let role: Role | null;
+  let session: Session | null;
   if (!(await hasPassword())) {
     if (!canSetupFromUi()) return { error: 'Set SUPERADMIN_USERNAME and SUPERADMIN_PASSWORD on the server first.' };
     if (!username.trim()) return { error: 'Choose a login ID.' };
     if (password.length < 8) return { error: 'Use at least 8 characters.' };
     if (password !== String(fd.get('confirm') || '')) return { error: 'The two passwords do not match.' };
     await setLogin('owner', password, username);
-    role = 'owner';
+    session = await checkLogin(username, password);
   } else {
-    role = await checkLogin(username, password);
-    if (!role) return { error: 'Wrong login ID or password.' };
+    session = await checkLogin(username, password);
   }
-  await createSession(role);
+  if (!session) return { error: 'Wrong login ID or password.' };
+  await createSession(session);
   redirect('/admin');
 }
 
@@ -69,26 +85,50 @@ export async function logoutAction() {
 /** Changes the signed-in user's own login. */
 export async function changePassword(current: string, next: string, username?: string): Promise<Result> {
   try {
-    const role = await assertRole();
-    if (!(await checkPasswordFor(role, current))) return { ok: false, error: 'Current password is wrong.' };
+    const s = await assertSession();
+    if (!(await checkOwnPassword(s, current))) return { ok: false, error: 'Current password is wrong.' };
     if (next.length < 8) return { ok: false, error: 'Use at least 8 characters.' };
     if (username !== undefined && !username.trim()) return { ok: false, error: 'Login ID cannot be empty.' };
-    await setLogin(role, next, username);
-    await createSession(role);
+    if (s.role === 'member') await setMemberLogin(s.id, next, username);
+    else await setLogin(s.role, next, username);
+    const fresh = await checkLogin(username || s.username, next);
+    if (fresh) await createSession(fresh);
     return { ok: true, message: 'Login details changed. Your other devices have been signed out.' };
   } catch (e) {
     return fail(e);
   }
 }
 
-/** Owner sets or resets the editor's login. */
-export async function setEditorLogin(username: string, password: string): Promise<Result> {
+/** Owner sets or resets the admin's login. */
+export async function setAdminLogin(username: string, password: string): Promise<Result> {
   try {
     await assertOwner();
     if (!username.trim()) return { ok: false, error: 'Login ID cannot be empty.' };
     if (password.length < 8) return { ok: false, error: 'Use at least 8 characters.' };
-    await setLogin('editor', password, username);
-    return { ok: true, message: 'Editor login saved. The editor has been signed out everywhere.' };
+    await setLogin('admin', password, username);
+    return { ok: true, message: 'Admin login saved. The admin has been signed out everywhere.' };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+/* ---------- team ---------- */
+
+export async function saveTeamMember(input: { id?: string; username: string; name: string; password?: string; perms: string[]; active: boolean }): Promise<Result> {
+  try {
+    await assertManager();
+    const id = await saveMember(input);
+    return { ok: true, id, message: input.id ? 'Team member updated.' : 'Team member added. Share the login privately.' };
+  } catch (e) {
+    return fail(e);
+  }
+}
+
+export async function removeTeamMember(id: string): Promise<Result> {
+  try {
+    await assertManager();
+    await deleteMember(id);
+    return { ok: true, message: 'Team member removed.' };
   } catch (e) {
     return fail(e);
   }
@@ -98,7 +138,7 @@ export async function setEditorLogin(username: string, password: string): Promis
 
 export async function saveSettings(data: Record<string, unknown>): Promise<Result> {
   try {
-    await assertOwner();
+    await assertPerm('settings');
     await updateContent((c) => {
       for (const f of SETTINGS_FIELDS) if (f.key in data) (c.settings as unknown as Record<string, unknown>)[f.key] = clean(f, data[f.key]);
     });
@@ -122,7 +162,7 @@ function uniqueSlug(stories: Story[], wanted: string, id: string) {
 
 export async function saveItem(col: string, data: Record<string, unknown>): Promise<Result> {
   try {
-    await assertCanEdit(col);
+    await assertCollection(col);
     if (!isCollection(col)) throw new Error('Unknown section.');
     const def = COLLECTIONS[col];
     for (const f of def.fields) if (f.required && !String(data[f.key] ?? '').trim()) return { ok: false, error: `${f.label} is required.` };
@@ -148,7 +188,7 @@ export async function saveItem(col: string, data: Record<string, unknown>): Prom
 
 async function mutate(col: string, fn: (items: AnyItem[]) => void): Promise<Result> {
   try {
-    await assertCanEdit(col);
+    await assertCollection(col);
     if (!isCollection(col)) throw new Error('Unknown section.');
     await updateContent((c) => fn(list(c, col)));
     refresh();
@@ -205,7 +245,7 @@ export async function duplicateItem(col: string, id: string) {
 
 export async function setSubmissionRead(ids: string[], read: boolean): Promise<Result> {
   try {
-    await assertRole();
+    await assertPerm('inbox');
     await updateSubmissions((l) => l.map((s) => (ids.includes(s.id) ? { ...s, read } : s)));
     return { ok: true };
   } catch (e) {
@@ -215,7 +255,7 @@ export async function setSubmissionRead(ids: string[], read: boolean): Promise<R
 
 export async function deleteSubmissions(ids: string[]): Promise<Result> {
   try {
-    await assertRole();
+    await assertPerm('inbox');
     await updateSubmissions((l) => l.filter((s) => !ids.includes(s.id)));
     return { ok: true };
   } catch (e) {
@@ -227,7 +267,7 @@ export async function deleteSubmissions(ids: string[]): Promise<Result> {
 
 export async function deleteUpload(name: string): Promise<Result> {
   try {
-    await assertRole();
+    await assertPerm('media');
     await removeUpload(name);
     return { ok: true };
   } catch (e) {
@@ -237,7 +277,7 @@ export async function deleteUpload(name: string): Promise<Result> {
 
 export async function importContent(json: string): Promise<Result> {
   try {
-    await assertOwner();
+    await assertManager();
     let raw: Partial<Content>;
     try {
       raw = JSON.parse(json);
@@ -268,14 +308,14 @@ export async function importContent(json: string): Promise<Result> {
 }
 
 export async function usageOf(url: string) {
-  await assertRole();
+  await assertSession();
   return JSON.stringify(await getContent()).split(JSON.stringify(url).slice(1, -1)).length - 1;
 }
 
 /** Adds one gallery photo per uploaded image, newest first. */
 export async function addGalleryPhotos(urls: string[], category: string): Promise<Result> {
   try {
-    await assertCanEdit('gallery');
+    await assertCollection('gallery');
     const clean = urls.map((u) => safeUrl(String(u).trim())).filter(Boolean).slice(0, 100);
     if (!clean.length) return { ok: false, error: 'No photos to add.' };
     await updateContent((c) => {

@@ -216,4 +216,40 @@ export const EXTRA_PRESS: string[] = [
   'Dainik Darpan',
 ];
 
-export const pressItems = (names: string[]): TextItem[] => names.map((text, i) => ({ id: `p-${i}-${text.toLowerCase().replace(/\W+/g, '-')}`, published: true, text }));
+export const pressItems = (names: string[]): TextItem[] =>
+  names.map((text, i) => ({
+    id: `p-${i}-${text.toLowerCase().replace(/\W+/g, '-')}`,
+    published: true,
+    text,
+    image: PRESS_LOGO_FILES[text] || '',
+    url: PRESS_SITES[text] || '',
+  }));
+
+/** Official logos downloaded from each outlet's own website (public/press). Outlets without a usable logo show their name. */
+export const PRESS_LOGO_FILES: Record<string, string> = {
+  'Muslim Mirror': '/press/muslim-mirror.webp',
+  'BNT Live': '/press/bnt-live.webp',
+  'Morning Kashmir': '/press/morning-kashmir-dark.webp',
+  'G Express News': '/press/g-express-news.webp',
+  'Rajneeti Manch': '/press/rajneeti-manch.webp',
+  'Swadesh News': '/press/swadesh-news.webp',
+  'Atal Hind': '/press/atal-hind.webp',
+  'Dainik Darpan': '/press/dainik-darpan.webp',
+  'Paigam-E-Jagat': '/press/paigam-e-jagat.webp',
+  'Sach Kahoon': '/press/sach-kahoon.webp',
+};
+
+export const PRESS_SITES: Record<string, string> = {
+  'Discovery Times': 'https://www.discoverytimes.in/',
+  'Paigam-E-Jagat': 'https://paigamejagat.com/',
+  'Muslim Mirror': 'https://muslimmirror.com/',
+  'BNT Live': 'https://bntlive.com/',
+  'Morning Kashmir': 'https://www.morningkashmir.com/',
+  'Sach Kahoon': 'https://www.sachkahoon.com/',
+  'Swadesh News': 'https://swadeshlive.com/',
+  'G Express News': 'https://gexpressnews.com/',
+  'Rajneeti Manch': 'https://rajneetimanch.in/',
+  'Atal Hind': 'https://www.atalhind.com/',
+  'Haryana News Update': 'https://www.haryananewsupdate.in/',
+  'Dainik Darpan': 'https://www.dainikdarpancg.com/',
+};

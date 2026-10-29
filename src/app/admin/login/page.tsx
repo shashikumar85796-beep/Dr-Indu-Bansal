@@ -1,11 +1,11 @@
 import { redirect } from 'next/navigation';
 import { LoginForm } from '@/components/admin/LoginForm';
-import { canSetupFromUi, hasPassword, isAdmin } from '@/lib/auth';
+import { canSetupFromUi, hasPassword, getSession } from '@/lib/auth';
 
 export const metadata = { title: 'Sign in' };
 
 export default async function Login() {
-  if (await isAdmin()) redirect('/admin');
+  if (await getSession()) redirect('/admin');
   const setup = !(await hasPassword());
   return (
     <div className="login">

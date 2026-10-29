@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { Connect, PageHead, Sec } from '@/components/site/blocks';
 import { JoinForm } from '@/components/site/Forms';
 import { getContent } from '@/lib/store';
 import { lines, visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Join the Sangh',
+  share: 'Join Shramjeevi Patrakar Sangh Haryana',
   description: 'Join Shramjeevi Patrakar Sangh Haryana: insurance, press ID card, vehicle pass and a district unit for working journalists.',
-  alternates: { canonical: '/join' },
-};
+  path: '/join',
+});
 
 export default async function Join() {
   const c = await getContent();

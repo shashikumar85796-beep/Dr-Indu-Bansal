@@ -1,13 +1,15 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { Connect, Hd, Logos, PageHead, Sec, SocialIcon, VideoCard } from '@/components/site/blocks';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Media',
+  share: 'Videos & Sangh songs',
   description: 'Videos of Shramjeevi Patrakar Sangh Haryana programmes across districts, and the Sangh’s songs.',
-  alternates: { canonical: '/media' },
-};
+  path: '/media',
+});
 
 export default async function Media() {
   const c = await getContent();

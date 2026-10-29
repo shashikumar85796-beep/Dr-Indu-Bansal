@@ -1,63 +1,88 @@
 import Link from 'next/link';
-import { FOOTER_NAV } from '@/lib/nav';
 import type { Settings } from '@/lib/types';
-import { lines, waLink } from '@/lib/utils';
+import { waLink } from '@/lib/utils';
 import { Socials } from './blocks';
 
+const EXPLORE: [string, string][] = [
+  ['/', 'Home'],
+  ['/about', 'About'],
+  ['/updates', 'Updates'],
+  ['/media', 'Videos'],
+  ['/gallery', 'Photo gallery'],
+  ['/awards', 'Awards & honours'],
+];
+
+const SANGH: [string, string][] = [
+  ['/sangh', 'About the Sangh'],
+  ['/sangh#demands', 'Our demands'],
+  ['/sangh#units', 'District units'],
+  ['/press', 'In the news'],
+  ['/join', 'Become a member'],
+  ['/contact', 'Contact'],
+];
+
 export function Footer({ s }: { s: Settings }) {
-  const script = lines(s.footerScript);
   return (
-    <footer>
-      <div className="w ft">
-        <div>
-          <div className="lg">
-            <b>
-              {s.logoFirst} <i>{s.logoAccent}</i>
-            </b>
-            <small>{s.tagline}</small>
-          </div>
-          {s.footerText}
-          <Socials s={s} />
+    <footer className="ftr">
+      <div className="w ftr-top">
+        <div className="ftr-brand">
+          <Link href="/" className="ftr-logo">
+            {s.logoFirst} <i>{s.logoAccent}</i>
+          </Link>
+          <p className="ftr-tag">{s.tagline}</p>
+          <p className="ftr-text">{s.footerText}</p>
+          <Socials s={s} size={18} withWhatsApp />
         </div>
-        <div>
-          <h4>Quick Links</h4>
-          <div style={{ columns: 2 }}>
-            {FOOTER_NAV.map(([href, label]) => (
-              <Link key={href} href={href}>
-                {label}
-              </Link>
-            ))}
-          </div>
+        <nav aria-label="Explore">
+          <h4>Explore</h4>
+          {EXPLORE.map(([href, label]) => (
+            <Link key={href} href={href}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <nav aria-label="The Sangh">
+          <h4>The Sangh</h4>
+          {SANGH.map(([href, label]) => (
+            <Link key={href} href={href}>
+              {label}
+            </Link>
+          ))}
+        </nav>
+        <div className="ftr-contact">
+          <h4>Get in touch</h4>
+          {s.location ? (
+            <p>
+              <span>Based in</span>
+              {s.location}
+            </p>
+          ) : null}
+          {s.phone ? (
+            <p>
+              <span>Phone</span>
+              <a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a>
+            </p>
+          ) : null}
+          {s.email ? (
+            <p>
+              <span>Email</span>
+              <a href={`mailto:${s.email}`}>{s.email}</a>
+            </p>
+          ) : null}
+          {s.whatsapp ? (
+            <a className="btn ftr-wa" href={waLink(s.whatsapp, s.waGreeting)} target="_blank" rel="noopener">
+              Message on WhatsApp
+            </a>
+          ) : null}
         </div>
-        <div>
-          <h4>Contact</h4>
-          <div className="fc">
-            {s.location ? <span>{s.location}</span> : null}
-            {s.phone ? <a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a> : null}
-            {s.email ? <a href={`mailto:${s.email}`}>{s.email}</a> : null}
-            {s.whatsapp ? (
-              <a href={waLink(s.whatsapp, s.waGreeting)} target="_blank" rel="noopener">
-                Chat on WhatsApp ↗
-              </a>
-            ) : null}
-          </div>
-        </div>
-        {script.length ? (
-          <div className="sc" style={{ position: 'static', fontSize: 22, transform: 'none', width: 'fit-content' }}>
-            {script.map((l, i) => (
-              <span key={i}>
-                {i ? <br /> : null}
-                {l}
-              </span>
-            ))}
-          </div>
-        ) : null}
       </div>
-      <div className="w fb">
-        <span>
-          © {new Date().getFullYear()} {s.personName}. All rights reserved.
-        </span>
-        <span>{s.tagline.split('|').pop()?.trim()}</span>
+      <div className="ftr-bottom">
+        <div className="w ftr-bottom-in">
+          <span>
+            © {new Date().getFullYear()} {s.personName}. All rights reserved.
+          </span>
+          <span>{s.sanghName}</span>
+        </div>
       </div>
     </footer>
   );

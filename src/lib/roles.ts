@@ -1,16 +1,37 @@
-import type { CollectionKey } from './types';
-
 /**
- * Owner: the site's maintainer, with full control.
- * Editor: the client's day-to-day login, limited to publishing content.
+ * Owner: the site's maintainer. Admin: the client, with full control of the website.
+ * Member: a team login created by the owner or admin, limited to the sections ticked for it.
  */
-export type Role = 'owner' | 'editor';
+export type Role = 'owner' | 'admin' | 'member';
 
-export const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', editor: 'Editor' };
+export const ROLE_LABEL: Record<Role, string> = { owner: 'Owner', admin: 'Admin', member: 'Team' };
 
-export const EDITOR_COLLECTIONS: CollectionKey[] = ['stories', 'coverage', 'gallery', 'videos', 'awards', 'milestones', 'pressLogos'];
+export const PERMS = [
+  { id: 'news', label: 'News & press coverage' },
+  { id: 'media', label: 'Photos & videos' },
+  { id: 'achievements', label: 'Achievements' },
+  { id: 'partners', label: 'Partner logos' },
+  { id: 'sangh', label: 'Sangh pages' },
+  { id: 'sections', label: 'Page sections' },
+  { id: 'inbox', label: 'Enquiries' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'settings', label: 'Site settings' },
+] as const;
 
-export const canEdit = (role: Role, col: string) => role === 'owner' || (EDITOR_COLLECTIONS as string[]).includes(col);
+export type Perm = (typeof PERMS)[number]['id'];
+export const PERM_IDS = PERMS.map((p) => p.id) as Perm[];
+
+/** What the dashboard knows about the signed-in user. */
+export interface Session {
+  id: string;
+  role: Role;
+  username: string;
+  name: string;
+  perms: Perm[];
+}
+
+export const isManager = (s: Session) => s.role === 'owner' || s.role === 'admin';
+export const can = (s: Session, perm: Perm) => isManager(s) || s.perms.includes(perm);
 
 export interface AdminTab {
   label: string;
@@ -18,10 +39,9 @@ export interface AdminTab {
 }
 
 export interface AdminSection {
-  id: string;
+  id: Perm;
   label: string;
   icon: string;
-  ownerOnly?: boolean;
   tabs: AdminTab[];
 }
 
@@ -60,7 +80,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     id: 'sangh',
     label: 'Sangh',
     icon: 'us',
-    ownerOnly: true,
     tabs: [
       { label: 'District units', href: '/admin/c/units' },
       { label: 'Demands', href: '/admin/c/demands' },
@@ -70,7 +89,6 @@ export const ADMIN_SECTIONS: AdminSection[] = [
     id: 'sections',
     label: 'Page sections',
     icon: 'layers',
-    ownerOnly: true,
     tabs: [
       { label: 'What I do', href: '/admin/c/services' },
       { label: 'Initiatives', href: '/admin/c/initiatives' },
@@ -82,8 +100,22 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   },
 ];
 
-export const sectionsFor = (role: Role) => ADMIN_SECTIONS.filter((s) => role === 'owner' || !s.ownerOnly);
+export const ENQUIRY_TABS: AdminTab[] = [
+  { label: 'All enquiries', href: '/admin/inbox' },
+  { label: 'Contact messages', href: '/admin/inbox?type=contact' },
+  { label: 'Membership requests', href: '/admin/inbox?type=join' },
+];
+
+export const sectionsFor = (s: Session) => ADMIN_SECTIONS.filter((sec) => can(s, sec.id));
 
 const matches = (path: string, href: string) => path === href || path.startsWith(href + '/');
 export const sectionOf = (path: string) => ADMIN_SECTIONS.find((s) => s.tabs.some((t) => matches(path, t.href)));
 export const isTabActive = matches;
+
+/** The permission that guards a content list, from the section whose tabs include it. */
+export const permForCollection = (col: string): Perm | null => sectionOf(`/admin/c/${col}`)?.id ?? null;
+
+export const canEditCollection = (s: Session, col: string) => {
+  const perm = permForCollection(col);
+  return perm ? can(s, perm) : isManager(s);
+};

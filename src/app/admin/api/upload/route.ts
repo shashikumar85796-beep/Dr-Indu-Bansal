@@ -1,5 +1,5 @@
 import crypto from 'crypto';
-import { isAdmin } from '@/lib/auth';
+import { getSession } from '@/lib/auth';
 import { saveUpload } from '@/lib/store';
 
 // Vercel rejects request bodies over 4.5 MB; the dashboard shrinks larger photos before sending.
@@ -17,7 +17,7 @@ function sniff(b: Uint8Array): string | null {
 }
 
 export async function POST(req: Request) {
-  if (!(await isAdmin())) return Response.json({ error: 'Please sign in again.' }, { status: 401 });
+  if (!(await getSession())) return Response.json({ error: 'Please sign in again.' }, { status: 401 });
   const origin = req.headers.get('origin');
   if (origin && new URL(origin).host !== req.headers.get('host')) return Response.json({ error: 'Bad origin.' }, { status: 403 });
 

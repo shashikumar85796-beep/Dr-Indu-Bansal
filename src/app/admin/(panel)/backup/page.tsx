@@ -1,10 +1,10 @@
-import { requireOwner } from '@/lib/auth';
+import { requireManager } from '@/lib/auth';
 import { BackupPanel } from '@/components/admin/BackupPanel';
 
 export const metadata = { title: 'Backup & restore' };
 
 export default async function BackupPage() {
-  await requireOwner();
+  await requireManager();
   return (
     <>
       <div className="a-top">

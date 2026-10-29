@@ -4,7 +4,7 @@ import { promises as fs } from 'fs';
 import path from 'path';
 import { del, get, list, put } from '@vercel/blob';
 import { CONTENT_VERSION, NEW_ABOUT_BIO_END, NEW_HERO_EYEBROW, OLD_ABOUT_BIO_END, OLD_HERO_EYEBROW, seedContent } from './seed';
-import { CHANNEL_VIDEOS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, YOUTUBE_CHANNEL, pressItems } from './verified';
+import { CHANNEL_VIDEOS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, PRESS_LOGO_FILES, PRESS_SITES, YOUTUBE_CHANNEL, pressItems } from './verified';
 import type { CollectionKey, Content, Submission } from './types';
 
 /*
@@ -95,20 +95,30 @@ export function normalize(raw: Partial<Content>): Content {
  * Lists that didn't exist yet (units, demands, coverage) already came from the seed above.
  */
 function migrate(c: Content): Content {
-  if ((c.version || 1) >= CONTENT_VERSION) return c;
+  const from = c.version || 1;
+  if (from >= CONTENT_VERSION) return c;
   const s = c.settings;
-  if (!s.youtube) s.youtube = YOUTUBE_CHANNEL;
-  if (!s.linkedin) s.linkedin = LINKEDIN;
-  if (s.heroEyebrow === OLD_HERO_EYEBROW) s.heroEyebrow = NEW_HERO_EYEBROW;
-  const bio = s.aboutBio.trim();
-  if (bio.endsWith(OLD_ABOUT_BIO_END)) s.aboutBio = bio.slice(0, -OLD_ABOUT_BIO_END.length) + NEW_ABOUT_BIO_END;
 
-  c.videos = c.videos.map((v) => ({ ...v, section: v.section || 'News' }));
-  const urls = new Set(c.videos.map((v) => v.url));
-  c.videos.push(...CHANNEL_VIDEOS.filter((v) => !urls.has(v.url)));
-  if (!c.awards.some((a) => /khabar palika/i.test(`${a.title} ${a.subtitle}`))) c.awards.push(KHABAR_PALIKA_ROLE);
-  const names = new Set(c.pressLogos.map((p) => p.text.toLowerCase()));
-  c.pressLogos.push(...pressItems(EXTRA_PRESS.filter((n) => !names.has(n.toLowerCase()))));
+  if (from < 2) {
+    if (!s.youtube) s.youtube = YOUTUBE_CHANNEL;
+    if (!s.linkedin) s.linkedin = LINKEDIN;
+    if (s.heroEyebrow === OLD_HERO_EYEBROW) s.heroEyebrow = NEW_HERO_EYEBROW;
+    const bio = s.aboutBio.trim();
+    if (bio.endsWith(OLD_ABOUT_BIO_END)) s.aboutBio = bio.slice(0, -OLD_ABOUT_BIO_END.length) + NEW_ABOUT_BIO_END;
+
+    c.videos = c.videos.map((v) => ({ ...v, section: v.section || 'News' }));
+    const urls = new Set(c.videos.map((v) => v.url));
+    c.videos.push(...CHANNEL_VIDEOS.filter((v) => !urls.has(v.url)));
+    if (!c.awards.some((a) => /khabar palika/i.test(`${a.title} ${a.subtitle}`))) c.awards.push(KHABAR_PALIKA_ROLE);
+    const names = new Set(c.pressLogos.map((p) => p.text.toLowerCase()));
+    c.pressLogos.push(...pressItems(EXTRA_PRESS.filter((n) => !names.has(n.toLowerCase()))));
+  }
+
+  if (from < 3) {
+    // The intro animation is off in the professional redesign; it can be turned back on in settings.
+    s.showPreloader = false;
+    c.pressLogos = c.pressLogos.map((p) => ({ ...p, image: p.image || PRESS_LOGO_FILES[p.text] || '', url: p.url || PRESS_SITES[p.text] || '' }));
+  }
 
   c.version = CONTENT_VERSION;
   return c;

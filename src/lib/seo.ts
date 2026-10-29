@@ -29,3 +29,18 @@ export function isoDate(text: string) {
   const t = Date.parse(`${text.trim()} UTC`);
   return Number.isFinite(t) ? new Date(t).toISOString().slice(0, 10) : '';
 }
+
+/**
+ * Full metadata for a page: its own title, description, canonical address and share card,
+ * so every page shows correctly in Google and when shared on WhatsApp or Facebook.
+ */
+export function pageMeta({ title, share, description, path }: { title: string; share: string; description: string; path: string }) {
+  const card = `/og?title=${encodeURIComponent(share)}&sub=${encodeURIComponent(description.slice(0, 140))}`;
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: { title: share, description, url: path, type: 'website' as const, images: [{ url: card, width: 1200, height: 630, alt: share }] },
+    twitter: { card: 'summary_large_image' as const, title: share, description, images: [card] },
+  };
+}

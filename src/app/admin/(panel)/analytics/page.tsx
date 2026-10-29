@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { BarList, Kpi, LineChart } from '@/components/admin/Charts';
-import { requireAdmin } from '@/lib/auth';
+import { requirePerm } from '@/lib/auth';
+import { can } from '@/lib/roles';
 import { ga4Report, hasServiceAccount, searchReport, serviceAccountEmail, type Ga4Data, type SearchData } from '@/lib/google';
 import { siteBase } from '@/lib/seo';
 import { getContent } from '@/lib/store';
@@ -18,7 +19,8 @@ async function attempt<T>(fn: () => Promise<T>): Promise<{ data?: T; error?: str
 }
 
 export default async function Analytics({ searchParams }: { searchParams: Promise<{ days?: string }> }) {
-  const role = await requireAdmin();
+  const session = await requirePerm('analytics');
+  const canSetup = can(session, 'settings');
   const sp = await searchParams;
   const days = RANGES.includes(Number(sp.days)) ? Number(sp.days) : 28;
   const { settings: s } = await getContent();
@@ -78,13 +80,13 @@ export default async function Analytics({ searchParams }: { searchParams: Promis
         <div className="card setup">
           <div className="a-top" style={{ marginBottom: 8 }}>
             <h2>Connect Google ({doneCount} of {steps.length} done)</h2>
-            {role === 'owner' ? (
+            {canSetup ? (
               <Link className="btn sm" href="/admin/settings#analytics">
                 Open settings
               </Link>
             ) : null}
           </div>
-          {role === 'owner' ? (
+          {canSetup ? (
             <ol className="steps">
               {steps.map(([ok, title, how]) => (
                 <li key={title} className={ok ? 'ok' : ''}>

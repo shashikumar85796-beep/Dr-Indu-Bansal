@@ -1,6 +1,6 @@
-import type { Content, Story } from './types';
+import type { Content, Story, TextItem } from './types';
 import { slugify } from './utils';
-import { CHANNEL_VIDEOS, COVERAGE, DEMANDS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, UNITS, YOUTUBE_CHANNEL, pressItems } from './verified';
+import { CHANNEL_VIDEOS, COVERAGE, DEMANDS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, PRESS_LOGO_FILES, PRESS_SITES, UNITS, YOUTUBE_CHANNEL, pressItems } from './verified';
 
 // Initial content, taken from the original single-page site. Written to data/content.json on first run.
 
@@ -25,7 +25,7 @@ const story = (
   sourceUrl,
 });
 
-export const CONTENT_VERSION = 2;
+export const CONTENT_VERSION = 3;
 
 export const OLD_HERO_EYEBROW = 'Journalist · Filmmaker · Haryana';
 export const NEW_HERO_EYEBROW = 'Senior Journalist · Documentary Filmmaker · Haryana';
@@ -55,7 +55,7 @@ export function seedContent(): Content {
       gscProperty: '',
       accentColor: '#d3141c',
       defaultFont: 'A',
-      showPreloader: true,
+      showPreloader: false,
       showFontSwitcher: true,
       showWhatsApp: true,
       storeSubmissions: true,
@@ -297,11 +297,9 @@ export function seedContent(): Content {
       'Free education support for children of journalist families',
     ].map((text, i) => ({ id: `b${i + 1}`, published: true, text })),
 
-    pressLogos: ['Discovery Times', 'Paigam-E-Jagat', 'Muslim Mirror', 'BNT Live', 'Morning Kashmir'].map((text, i) => ({
-      id: `p${i + 1}`,
-      published: true,
-      text,
-    })).concat(pressItems(EXTRA_PRESS)),
+    pressLogos: ['Discovery Times', 'Paigam-E-Jagat', 'Muslim Mirror', 'BNT Live', 'Morning Kashmir']
+      .map((text, i): TextItem => ({ id: `p${i + 1}`, published: true, text, image: PRESS_LOGO_FILES[text] || '', url: PRESS_SITES[text] || '' }))
+      .concat(pressItems(EXTRA_PRESS)),
 
     units: UNITS,
     demands: DEMANDS,

@@ -1,14 +1,16 @@
 import type { Metadata } from 'next';
+import { pageMeta } from '@/lib/seo';
 import { Connect, PageHead, Sec } from '@/components/site/blocks';
 import { GalleryGrid } from '@/components/site/GalleryGrid';
 import { getContent } from '@/lib/store';
 import { lines, visible } from '@/lib/utils';
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMeta({
   title: 'Gallery',
+  share: 'Photo gallery',
   description: 'Photos from events, press meets, ceremonies and field work of Dr. Indu Bansal and Shramjeevi Patrakar Sangh Haryana.',
-  alternates: { canonical: '/gallery' },
-};
+  path: '/gallery',
+});
 
 export default async function Gallery() {
   const c = await getContent();

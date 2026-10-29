@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { changePassword, setEditorLogin } from '@/app/admin/actions';
+import { changePassword, setAdminLogin } from '@/app/admin/actions';
 
 export function PasswordForm({ username }: { username: string }) {
   const [msg, setMsg] = useState<{ text: string; err?: boolean }>({ text: '' });
@@ -49,7 +49,7 @@ export function PasswordForm({ username }: { username: string }) {
   );
 }
 
-export function EditorLoginForm({ username }: { username: string }) {
+export function AdminLoginForm({ username }: { username: string }) {
   const [msg, setMsg] = useState<{ text: string; err?: boolean }>({ text: '' });
   const [busy, setBusy] = useState(false);
 
@@ -58,7 +58,7 @@ export function EditorLoginForm({ username }: { username: string }) {
     const f = e.currentTarget;
     const v = (n: string) => (f.elements.namedItem(n) as HTMLInputElement).value;
     setBusy(true);
-    const r = await setEditorLogin(v('username'), v('password'));
+    const r = await setAdminLogin(v('username'), v('password'));
     setBusy(false);
     setMsg(r.ok ? { text: r.message || 'Saved.' } : { text: r.error, err: true });
     if (r.ok) (f.elements.namedItem('password') as HTMLInputElement).value = '';
@@ -67,19 +67,19 @@ export function EditorLoginForm({ username }: { username: string }) {
   return (
     <form className="form" onSubmit={onSubmit}>
       <div className="fld">
-        <label htmlFor="ed-u">Editor login ID</label>
+        <label htmlFor="ed-u">Admin login ID</label>
         <input id="ed-u" name="username" type="text" defaultValue={username} autoComplete="off" autoCapitalize="none" spellCheck={false} required />
       </div>
       <div className="fld">
-        <label htmlFor="ed-p">New editor password</label>
+        <label htmlFor="ed-p">New admin password</label>
         <input id="ed-p" name="password" type="password" autoComplete="new-password" minLength={8} required />
-        <span className="help">At least 8 characters. Share it with the editor privately.</span>
+        <span className="help">At least 8 characters. Share it with the admin privately.</span>
       </div>
       <p role="status" style={{ color: msg.err ? 'var(--red)' : '#1a9b4b', fontWeight: 600, minHeight: '1.2em' }}>
         {msg.text}
       </p>
       <button className="btn" disabled={busy} style={{ justifySelf: 'start' }}>
-        {busy ? 'Saving…' : 'Save editor login'}
+        {busy ? 'Saving…' : 'Save admin login'}
       </button>
     </form>
   );
