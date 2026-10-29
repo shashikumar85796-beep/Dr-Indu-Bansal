@@ -5,7 +5,11 @@ import { Icon } from '@/components/site/Icon';
 import { getContent } from '@/lib/store';
 import { lines } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'Contact' };
+export const metadata: Metadata = {
+  title: 'Contact',
+  description: 'Contact Dr. Indu Bansal for story tips, media enquiries, collaborations and Sangh membership.',
+  alternates: { canonical: '/contact' },
+};
 
 export default async function Contact() {
   const { settings: s } = await getContent();

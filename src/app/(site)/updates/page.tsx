@@ -4,7 +4,11 @@ import { UpdatesBrowser } from '@/components/site/UpdatesBrowser';
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'Updates' };
+export const metadata: Metadata = {
+  title: 'Updates',
+  description: 'News and updates from Shramjeevi Patrakar Sangh Haryana and Dr. Indu Bansal: insurance for journalists, district units and the journalists’ movement.',
+  alternates: { canonical: '/updates' },
+};
 
 export default async function Updates() {
   const c = await getContent();

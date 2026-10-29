@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
 import {
@@ -21,6 +22,8 @@ import { Icon } from '@/components/site/Icon';
 import { Photo, SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
 import { isNumeric, videoThumb, visible, waLink } from '@/lib/utils';
+
+export const metadata: Metadata = { alternates: { canonical: '/' } };
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
 

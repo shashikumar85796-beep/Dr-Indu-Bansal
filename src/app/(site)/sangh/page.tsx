@@ -9,6 +9,7 @@ import { visible } from '@/lib/utils';
 export const metadata: Metadata = {
   title: 'Shramjeevi Patrakar Sangh Haryana',
   description: 'District units, demands and work of Shramjeevi Patrakar Sangh Haryana, founded and led by Dr. Indu Bansal.',
+  alternates: { canonical: '/sangh' },
 };
 
 export default async function Sangh() {

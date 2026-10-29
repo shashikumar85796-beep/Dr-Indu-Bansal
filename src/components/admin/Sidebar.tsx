@@ -8,6 +8,7 @@ import { ROLE_LABEL, isTabActive, sectionOf, sectionsFor, type Role } from '@/li
 
 const ICON: Record<string, string> = {
   home: '<path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/>',
+  chart: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
   inbox: '<path d="M3 13h5l1 3h6l1-3h5M5 5h14l2 8v6H3v-6z"/>',
   news: '<path d="M4 5h13v14H6a2 2 0 0 1-2-2zM17 9h3v8a2 2 0 0 1-2 2M7 9h7M7 13h7M7 16h4"/>',
   image: '<rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-9 9"/>',
@@ -83,6 +84,7 @@ export function Sidebar({
           </div>
 
           <L href="/admin" label="Dashboard" icon="home" />
+          <L href="/admin/analytics" label="Analytics" icon="chart" />
           <L href="/admin/inbox" label="Inbox" icon="inbox" badge={unread} />
 
           <div className="a-grp">Content</div>

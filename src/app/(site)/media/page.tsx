@@ -3,7 +3,11 @@ import { Connect, Hd, Logos, PageHead, Sec, SocialIcon, VideoCard } from '@/comp
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'Media' };
+export const metadata: Metadata = {
+  title: 'Media',
+  description: 'Videos of Shramjeevi Patrakar Sangh Haryana programmes across districts, and the Sangh’s songs.',
+  alternates: { canonical: '/media' },
+};
 
 export default async function Media() {
   const c = await getContent();

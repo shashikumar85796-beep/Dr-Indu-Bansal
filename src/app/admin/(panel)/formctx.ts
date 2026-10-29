@@ -10,6 +10,7 @@ export async function formContext(): Promise<FormCtx> {
   return {
     uploads: uploads.map(({ name, url, size }) => ({ name, url, size })),
     options: { galleryCategories: lines(c.settings.galleryCategories) },
+    siteUrl: c.settings.siteUrl,
     suggestions: {
       category: uniq(c.stories.map((s) => s.category)),
       platform: uniq(['YouTube', 'YouTube Short', 'Facebook', 'Instagram Reel', ...c.videos.map((v) => v.platform)]),

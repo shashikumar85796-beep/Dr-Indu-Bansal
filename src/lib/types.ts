@@ -12,6 +12,10 @@ export interface Story extends Base {
   image: string;
   body: string;
   sourceUrl: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  keywords?: string;
+  ogImage?: string;
 }
 
 export interface Video extends Base {
@@ -91,6 +95,12 @@ export interface Settings {
   seoSuffix: string;
   seoDescription: string;
   ogDescription: string;
+  siteUrl: string;
+  seoKeywords: string;
+  googleVerification: string;
+  ga4MeasurementId: string;
+  ga4PropertyId: string;
+  gscProperty: string;
   accentColor: string;
   defaultFont: string;
   showPreloader: boolean;

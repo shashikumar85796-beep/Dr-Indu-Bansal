@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import type { CSSProperties, ReactNode } from 'react';
+import { siteBase, splitKeywords } from '@/lib/seo';
 import { getContent } from '@/lib/store';
 import { fontVars } from './fonts';
 import './globals.css';
@@ -7,9 +8,16 @@ import './globals.css';
 export async function generateMetadata(): Promise<Metadata> {
   const { settings: s } = await getContent();
   return {
+    metadataBase: siteBase(s.siteUrl),
     title: { default: s.seoTitle, template: `%s · ${s.seoSuffix}` },
     description: s.seoDescription,
-    openGraph: { title: s.seoTitle, description: s.ogDescription, type: 'website' },
+    keywords: splitKeywords(s.seoKeywords),
+    authors: [{ name: s.personName }],
+    creator: s.personName,
+    openGraph: { title: s.seoTitle, description: s.ogDescription || s.seoDescription, type: 'website', siteName: s.personName, locale: 'en_IN', images: [{ url: '/og', width: 1200, height: 630, alt: s.personName }] },
+    twitter: { card: 'summary_large_image', title: s.seoTitle, description: s.ogDescription || s.seoDescription, images: ['/og'] },
+    verification: s.googleVerification ? { google: s.googleVerification } : undefined,
+    robots: { index: true, follow: true },
   };
 }
 

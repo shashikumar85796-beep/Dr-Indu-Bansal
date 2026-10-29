@@ -1,3 +1,4 @@
+import Script from 'next/script';
 import type { ReactNode } from 'react';
 import { Effects } from '@/components/site/Effects';
 import { FloatingTools } from '@/components/site/FloatingTools';
@@ -27,6 +28,14 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <Footer s={s} />
       <FloatingTools whatsapp={s.whatsapp} greeting={s.waGreeting} showWa={s.showWhatsApp} />
       <Effects />
+      {/^G-[A-Z0-9]{4,20}$/.test(s.ga4MeasurementId) ? (
+        <>
+          <Script src={`https://www.googletagmanager.com/gtag/js?id=${s.ga4MeasurementId}`} strategy="afterInteractive" />
+          <Script id="ga4" strategy="afterInteractive">
+            {`window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments)}gtag('js',new Date());gtag('config','${s.ga4MeasurementId}');`}
+          </Script>
+        </>
+      ) : null}
       <noscript>
         <style>{'.rv,.ld{opacity:1!important;transform:none!important}#pl{display:none}'}</style>
       </noscript>

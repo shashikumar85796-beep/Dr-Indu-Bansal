@@ -62,3 +62,18 @@ Uploads larger than 3.5 MB are shrunk in the browser before upload, because Verc
 ## Performance
 
 Public pages are pre-rendered as static HTML and refreshed the moment you save in the dashboard. Fonts are self-hosted through `next/font`, and images go through `next/image` (AVIF/WebP, resized per device).
+
+## SEO
+
+- Every update has its own SEO panel: web address, meta title, meta description, keywords and share image, with a live Google preview and checks.
+- Site-wide: canonical URLs, Open Graph and Twitter cards, a generated share image at `/og`, `NewsArticle` and `Person` structured data, `/sitemap.xml` (refreshed hourly) and `/robots.txt` (admin excluded).
+- Owner settings → Search & sharing: website address, site keywords and the Google Search Console verification code.
+
+## Analytics dashboard
+
+**Admin → Analytics** shows visitors (Google Analytics 4) and Google searches (Search Console) for 7, 28 or 90 days. To connect:
+
+1. Create a GA4 property; paste its measurement ID (`G-…`) and numeric property ID in Settings → Google Analytics & Search Console.
+2. Add the site to Search Console (HTML tag method); paste the verification code and the property name in Settings.
+3. In Google Cloud, create a service account, enable the Google Analytics Data API and the Search Console API, and create a JSON key. Set `GOOGLE_CLIENT_EMAIL` and `GOOGLE_PRIVATE_KEY` in Vercel.
+4. Add the service account email as a Viewer on the GA4 property and as a user on the Search Console property.

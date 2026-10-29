@@ -5,7 +5,11 @@ import { SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
 import { paragraphs, visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'About' };
+export const metadata: Metadata = {
+  title: 'About',
+  description: 'Biography of Dr. Indu Bansal, journalist and documentary filmmaker from Sonipat, Haryana, founder of Shramjeevi Patrakar Sangh Haryana.',
+  alternates: { canonical: '/about' },
+};
 
 export default async function About() {
   const c = await getContent();

@@ -3,7 +3,11 @@ import { AwardCard, Connect, Hd, Logos, PageHead, Sec } from '@/components/site/
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'Awards' };
+export const metadata: Metadata = {
+  title: 'Awards',
+  description: 'Awards, honours and roles of Dr. Indu Bansal, including Best Journalist awards from the Governor and Chief Minister of Haryana.',
+  alternates: { canonical: '/awards' },
+};
 
 export default async function Awards() {
   const c = await getContent();

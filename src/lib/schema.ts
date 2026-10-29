@@ -27,6 +27,10 @@ export interface Field {
   required?: boolean;
   placeholder?: string;
   wide?: boolean;
+  /** Fields in the "seo" section are shown in their own Search engine (SEO) panel. */
+  section?: 'seo';
+  /** Recommended length; the editor shows a live character count. */
+  max?: number;
 }
 
 export interface CollectionDef {
@@ -57,7 +61,26 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
       { key: 'category', label: 'Category', type: 'text', suggest: true, required: true, help: 'Used for the filter buttons on the Updates page.' },
       { key: 'date', label: 'Date', type: 'text', placeholder: '26 Oct 2026' },
       { key: 'readTime', label: 'Read time', type: 'text', placeholder: '3 min' },
-      { key: 'slug', label: 'Web address', type: 'text', help: 'Leave empty to create it from the headline. Shown as /updates/<address>.' },
+      {
+        key: 'slug',
+        label: 'Web address (URL)',
+        type: 'text',
+        section: 'seo',
+        wide: true,
+        help: 'Leave empty to create it from the headline. Short English words with hyphens work best, e.g. palwal-insurance-2026.',
+      },
+      { key: 'seoTitle', label: 'Meta title', type: 'text', section: 'seo', wide: true, max: 60, help: 'Title shown in Google results. Leave empty to use the headline.' },
+      {
+        key: 'seoDescription',
+        label: 'Meta description',
+        type: 'textarea',
+        section: 'seo',
+        wide: true,
+        max: 160,
+        help: 'One or two sentences shown under the title in Google. Leave empty to use the first paragraph.',
+      },
+      { key: 'keywords', label: 'Keywords', type: 'text', section: 'seo', wide: true, help: 'Comma-separated, e.g. पत्रकार बीमा, Palwal journalists, Shramjeevi Patrakar Sangh.' },
+      { key: 'ogImage', label: 'Share image (optional)', type: 'image', section: 'seo', help: 'Shown when the link is shared on WhatsApp or Facebook. Uses the cover photo if empty.' },
       { key: 'image', label: 'Cover photo', type: 'image', wide: true },
       { key: 'body', label: 'Story', type: 'paragraphs', required: true, wide: true },
       { key: 'sourceUrl', label: 'Original report link', type: 'url', wide: true, placeholder: 'https://…' },
@@ -297,6 +320,18 @@ export const SETTINGS_GROUPS: { id: string; title: string; fields: Field[] }[] =
       { key: 'seoSuffix', label: 'Title suffix for other pages', type: 'text', help: 'e.g. “About · Journalist, Haryana”.' },
       { key: 'seoDescription', label: 'Search description', type: 'textarea', wide: true },
       { key: 'ogDescription', label: 'Social share description', type: 'text', wide: true },
+      { key: 'siteUrl', label: 'Website address', type: 'url', wide: true, help: 'The main address of the site, e.g. https://indubansal.vercel.app or your own domain. Used for the sitemap and Google.' },
+      { key: 'seoKeywords', label: 'Site keywords', type: 'textarea', wide: true, help: 'Comma-separated words people search for, in English and Hindi.' },
+      { key: 'googleVerification', label: 'Google Search Console verification code', type: 'text', wide: true, help: 'From Search Console → Add property → HTML tag: paste only the content="…" value.' },
+    ],
+  },
+  {
+    id: 'analytics',
+    title: 'Google Analytics & Search Console',
+    fields: [
+      { key: 'ga4MeasurementId', label: 'Google Analytics measurement ID', type: 'text', max: 20, placeholder: 'G-XXXXXXXXXX', help: 'Adds Google Analytics tracking to the website.' },
+      { key: 'ga4PropertyId', label: 'Google Analytics property ID', type: 'digits', placeholder: '123456789', help: 'Numbers only, from Analytics → Admin → Property details. Used by the Analytics dashboard.' },
+      { key: 'gscProperty', label: 'Search Console property', type: 'text', placeholder: 'https://indubansal.vercel.app/', help: 'Exactly as shown in Search Console, e.g. https://example.com/ or sc-domain:example.com.' },
     ],
   },
   {

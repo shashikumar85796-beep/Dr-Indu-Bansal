@@ -46,6 +46,13 @@ export function seedContent(): Content {
       seoDescription:
         'Dr. Indu Bansal: journalist, documentary filmmaker, founder and state president of Shramjeevi Patrakar Sangh Haryana, Sonipat.',
       ogDescription: 'Stories for a Better Haryana',
+      siteUrl: 'https://indubansal.vercel.app',
+      seoKeywords:
+        'Dr. Indu Bansal, डॉ. इंदु बंसल, Indu Bansal journalist, Shramjeevi Patrakar Sangh Haryana, श्रमजीवी पत्रकार संघ हरियाणा, Haryana journalists union, Sonipat journalist, Khabar Palika',
+      googleVerification: '',
+      ga4MeasurementId: '',
+      ga4PropertyId: '',
+      gscProperty: '',
       accentColor: '#d3141c',
       defaultFont: 'A',
       showPreloader: true,

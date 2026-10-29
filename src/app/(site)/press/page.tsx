@@ -3,7 +3,11 @@ import { Connect, CoverageCard, Logos, PageHead, Sec } from '@/components/site/b
 import { getContent } from '@/lib/store';
 import { visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'In the News' };
+export const metadata: Metadata = {
+  title: 'In the News',
+  description: 'News reports about Dr. Indu Bansal and Shramjeevi Patrakar Sangh Haryana from newspapers and news websites.',
+  alternates: { canonical: '/press' },
+};
 
 export default async function Press() {
   const c = await getContent();

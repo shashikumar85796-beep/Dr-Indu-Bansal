@@ -4,7 +4,11 @@ import { GalleryGrid } from '@/components/site/GalleryGrid';
 import { getContent } from '@/lib/store';
 import { lines, visible } from '@/lib/utils';
 
-export const metadata: Metadata = { title: 'Gallery' };
+export const metadata: Metadata = {
+  title: 'Gallery',
+  description: 'Photos from events, press meets, ceremonies and field work of Dr. Indu Bansal and Shramjeevi Patrakar Sangh Haryana.',
+  alternates: { canonical: '/gallery' },
+};
 
 export default async function Gallery() {
   const c = await getContent();

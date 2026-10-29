@@ -6,7 +6,7 @@ import type { Field } from '@/lib/schema';
 import { ImageField, type Upload } from './ImageField';
 
 type Values = Record<string, unknown>;
-export type FormCtx = { uploads: Upload[]; options: Record<string, string[]>; suggestions: Record<string, string[]> };
+export type FormCtx = { uploads: Upload[]; options: Record<string, string[]>; suggestions: Record<string, string[]>; siteUrl?: string };
 type SaveResult = { ok: true; message?: string } | { ok: false; error: string };
 
 function FieldInput({ f, value, set, ctx, onUploaded }: { f: Field; value: unknown; set: (v: unknown) => void; ctx: FormCtx; onUploaded: (u: Upload) => void }) {
@@ -92,6 +92,8 @@ export function ItemForm({
   onSave,
   extraActions,
   saveLabel = 'Save changes',
+  aside,
+  asideAfter,
 }: {
   groups: { id: string; title: string; fields: Field[] }[];
   initial: Values;
@@ -99,6 +101,9 @@ export function ItemForm({
   onSave: (v: Values) => Promise<SaveResult>;
   extraActions?: ReactNode;
   saveLabel?: string;
+  /** Extra live content (e.g. a search preview) rendered inside the group with id `asideAfter`. */
+  aside?: (values: Values) => ReactNode;
+  asideAfter?: string;
 }) {
   const [values, setValues] = useState<Values>(initial);
   const [dirty, setDirty] = useState(false);
@@ -170,6 +175,11 @@ export function ItemForm({
                     <label htmlFor={`f-${f.key}`}>
                       {f.label}
                       {f.required ? <span className="req"> *</span> : null}
+                      {f.max ? (
+                        <span className={`count${String(values[f.key] ?? '').length > f.max ? ' over' : ''}`}>
+                          {String(values[f.key] ?? '').length} / {f.max}
+                        </span>
+                      ) : null}
                     </label>
                   )
                 ) : null}
@@ -190,6 +200,7 @@ export function ItemForm({
               </div>
             ))}
           </div>
+          {g.id === asideAfter && aside ? aside(values) : null}
         </div>
       ))}
       <div className="savebar">
