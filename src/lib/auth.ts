@@ -15,7 +15,7 @@ interface AuthFile {
   ver?: number;
 }
 
-// When storage can't persist the generated secret (Vercel before Redis is connected), a random one would
+// When storage can't persist the generated secret (Vercel before Blob is connected), a random one would
 // change on every request and no login would stick, so derive a stable one from ADMIN_PASSWORD instead.
 const fallbackSecret = () =>
   process.env.ADMIN_PASSWORD

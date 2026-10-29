@@ -39,7 +39,7 @@ Every list supports add, edit, duplicate, delete, show/hide, search, and drag-to
 
 Storage is picked automatically:
 
-- **On Vercel:** Upstash Redis holds the content, inbox and login data, and Vercel Blob holds uploaded images.
+- **On Vercel:** one public Vercel Blob store holds the uploaded images and, in a hidden folder derived from the store's secret token, the content, inbox and login files.
 - **Locally:** everything lives in `data/` (or `DATA_DIR`): `content.json`, `submissions.json`, `auth.json` and `uploads/`. It is git-ignored, so back it up.
 
 The dashboard overview shows which storage is in use.
@@ -47,11 +47,11 @@ The dashboard overview shows which storage is in use.
 ## Deploying to Vercel
 
 1. Import this repository in Vercel, or run `npx vercel` from this folder.
-2. In the Vercel project, open **Storage** and add:
-   - **Upstash Redis** (from the Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
-   - **Blob**, created as a **public** store. This sets `BLOB_READ_WRITE_TOKEN`.
+2. In the Vercel project, open **Storage** and add a **Blob** store, created as **public**. This sets `BLOB_READ_WRITE_TOKEN`.
 3. In **Settings → Environment Variables**, add `ADMIN_PASSWORD` (and optionally `SESSION_SECRET`).
-4. Redeploy. On the first visit the site fills Redis with the starting content.
+4. Redeploy. On the first visit the site saves the starting content to Blob.
+
+If the Blob store is ever replaced, its token changes and the site starts again from the starting content. Download a backup from the dashboard first.
 
 Uploads larger than 3.5 MB are shrunk in the browser before upload, because Vercel limits request bodies to 4.5 MB.
 

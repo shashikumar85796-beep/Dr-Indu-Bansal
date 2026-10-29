@@ -1,40 +1,39 @@
 import 'server-only';
+import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
-import { Redis } from '@upstash/redis';
-import { del, list, put } from '@vercel/blob';
+import { del, get, list, put } from '@vercel/blob';
 import { seedContent } from './seed';
 import type { CollectionKey, Content, Submission } from './types';
 
 /*
- * Storage has two backends:
- * - Hosted (Vercel): Upstash Redis for content, inbox and login data; Vercel Blob for images.
+ * Storage has two backends, picked from the environment:
+ * - Vercel: one public Vercel Blob store (BLOB_READ_WRITE_TOKEN) holds the images and, under a
+ *   hidden path derived from the token, the content, inbox and login JSON files.
  * - Local: JSON files and an uploads folder under DATA_DIR (default ./data).
- * Each is picked automatically from the environment variables that are present.
  */
 
-const redisUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL;
-const redisToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN;
-const redis = redisUrl && redisToken ? new Redis({ url: redisUrl, token: redisToken }) : null;
-export const useBlob = Boolean(process.env.BLOB_READ_WRITE_TOKEN);
+const blobToken = process.env.BLOB_READ_WRITE_TOKEN;
+export const useBlob = Boolean(blobToken);
+// Unguessable folder for data files, since the store itself is public.
+const DOC_DIR = blobToken ? `data-${crypto.createHash('sha256').update(`site-data:${blobToken}`).digest('hex').slice(0, 32)}` : '';
 
 // Data is read at runtime, so keep it out of the build's file tracing.
 export const DATA_DIR = path.resolve(/*turbopackIgnore: true*/ process.env.DATA_DIR || path.join(/*turbopackIgnore: true*/ process.cwd(), 'data'));
 export const UPLOAD_DIR = path.join(DATA_DIR, 'uploads');
 const MAX_SUBMISSIONS = 1000;
-const PREFIX = process.env.STORE_PREFIX || 'site';
 
 function noStorage(): never {
-  throw new Error('No storage is connected. Add Upstash Redis to this Vercel project (Storage tab), then redeploy.');
+  throw new Error('No storage is connected. Add a public Vercel Blob store to this project (Storage tab), then redeploy.');
 }
 
 /** Reads a JSON document; creates it from `fallback` when missing. */
 export async function readDoc<T>(name: string, fallback: () => T): Promise<T> {
-  if (redis) {
-    const v = await redis.get<T>(`${PREFIX}:${name}`);
-    if (v != null) return v;
+  if (useBlob) {
+    const res = await get(`${DOC_DIR}/${name}.json`, { access: 'public', useCache: false });
+    if (res && res.statusCode === 200 && res.stream) return JSON.parse(await new Response(res.stream).text()) as T;
     const fresh = fallback();
-    await redis.set(`${PREFIX}:${name}`, fresh);
+    await writeDoc(name, fresh);
     return fresh;
   }
   const file = path.join(DATA_DIR, `${name}.json`);
@@ -50,8 +49,14 @@ export async function readDoc<T>(name: string, fallback: () => T): Promise<T> {
 }
 
 export async function writeDoc(name: string, data: unknown) {
-  if (redis) {
-    await redis.set(`${PREFIX}:${name}`, data);
+  if (useBlob) {
+    await put(`${DOC_DIR}/${name}.json`, JSON.stringify(data), {
+      access: 'public',
+      contentType: 'application/json',
+      addRandomSuffix: false,
+      allowOverwrite: true,
+      cacheControlMaxAge: 60,
+    });
     return;
   }
   if (process.env.VERCEL) noStorage();
@@ -166,4 +171,4 @@ export async function removeUpload(name: string) {
 
 /** Where saved data lives, for the dashboard. */
 export const storageLabel = () =>
-  `${redis ? 'Upstash Redis' : process.env.VERCEL ? 'not connected' : 'local data folder'} · images: ${useBlob ? 'Vercel Blob' : process.env.VERCEL ? 'not connected' : 'local data folder'}`;
+  useBlob ? 'Vercel Blob' : process.env.VERCEL ? 'not connected' : 'local data folder';

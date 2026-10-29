@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@upstash/redis": "^1.40.0",
     "@vercel/blob": "^2.8.2",
     "jose": "6.2.13",
     "next": "16.4.3",
