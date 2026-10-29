@@ -311,6 +311,7 @@ footer{padding:56px 0 0;background:var(--soft);border-top:0}
 @media (max-width:1000px){
 .hero3-in{grid-template-columns:1fr}
 .h3t{padding-bottom:8px;text-align:center}
+.h3t .ey{display:inline-block}
 .hero3 p.t{margin-inline:auto}
 .hero3 .bt,.h3m{justify-content:center}
 .h3v{height:clamp(360px,90vw,480px)}
