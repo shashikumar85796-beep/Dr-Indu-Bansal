@@ -13,7 +13,12 @@ interface AuthFile {
   salt?: string;
   hash?: string;
   ver?: number;
+  username?: string;
 }
+
+const normUser = (u: string) => u.trim().toLowerCase();
+const sameText = (a: string, b: string) =>
+  crypto.timingSafeEqual(crypto.createHash('sha256').update(a).digest(), crypto.createHash('sha256').update(b).digest());
 
 // When storage can't persist the generated secret (Vercel before Blob is connected), a random one would
 // change on every request and no login would stick, so derive a stable one from ADMIN_PASSWORD instead.
@@ -43,14 +48,23 @@ export async function checkPassword(pw: string) {
   }
   const env = process.env.ADMIN_PASSWORD;
   if (!env) return false;
-  const x = crypto.createHash('sha256').update(pw).digest();
-  const y = crypto.createHash('sha256').update(env).digest();
-  return crypto.timingSafeEqual(x, y);
+  return sameText(pw, env);
 }
 
-/** Saves a new password and signs out every existing session. */
-export async function setPassword(pw: string) {
+/** The sign-in ID: the one saved from the dashboard, else ADMIN_USERNAME, else "admin". */
+export async function adminUsername() {
+  return (await readAuth()).username || normUser(process.env.ADMIN_USERNAME || 'admin');
+}
+
+export async function checkLogin(username: string, pw: string) {
+  const [userOk, pwOk] = await Promise.all([adminUsername().then((u) => sameText(normUser(username), u)), checkPassword(pw)]);
+  return userOk && pwOk;
+}
+
+/** Saves a new password (and optionally a new ID) and signs out every existing session. */
+export async function setPassword(pw: string, username?: string) {
   const a = await readAuth();
+  if (username && normUser(username)) a.username = normUser(username);
   a.salt = crypto.randomBytes(16).toString('hex');
   a.hash = hashPw(pw, a.salt).toString('hex');
   a.ver = (a.ver || 0) + 1;

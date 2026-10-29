@@ -18,8 +18,9 @@ npm run start
 
 ## Admin sign-in
 
-- Set `ADMIN_PASSWORD` in `.env.local` (copy `.env.example`). In development you can also create the first password on `/admin/login`.
-- Change the password any time under **Admin → Account**. The saved password then replaces `ADMIN_PASSWORD`, and other devices are signed out.
+- Sign in with a login ID and password. Set `ADMIN_USERNAME` (defaults to `admin`) and `ADMIN_PASSWORD` in `.env.local` locally, or in Vercel's environment variables for the live site. In development you can also create the first login on `/admin/login`.
+- Change both any time under **Admin → Account**. The saved details then replace the environment variables, and other devices are signed out.
+- Never put real login details in the code: this repository is public.
 
 ## What the dashboard manages
 

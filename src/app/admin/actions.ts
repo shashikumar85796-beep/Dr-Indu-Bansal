@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { assertAdmin, canSetupFromUi, checkPassword, createSession, destroySession, hasPassword, setPassword } from '@/lib/auth';
+import { assertAdmin, canSetupFromUi, checkLogin, checkPassword, createSession, destroySession, hasPassword, setPassword } from '@/lib/auth';
 import { allow, clientIp } from '@/lib/ratelimit';
 import { COLLECTIONS, SETTINGS_FIELDS, isCollection, type Field } from '@/lib/schema';
 import { getContent, normalize, removeUpload, updateContent, updateSubmissions } from '@/lib/store';
@@ -42,14 +42,16 @@ function clean(field: Field, raw: unknown): unknown {
 export async function loginAction(_: unknown, fd: FormData): Promise<{ error?: string }> {
   const ip = await clientIp();
   if (!allow(`login:${ip}`, 8, 15 * 60_000)) return { error: 'Too many attempts. Please wait 15 minutes.' };
+  const username = String(fd.get('username') || '');
   const password = String(fd.get('password') || '');
   if (!(await hasPassword())) {
-    if (!canSetupFromUi()) return { error: 'Set ADMIN_PASSWORD on the server first.' };
+    if (!canSetupFromUi()) return { error: 'Set ADMIN_USERNAME and ADMIN_PASSWORD on the server first.' };
+    if (!username.trim()) return { error: 'Choose a login ID.' };
     if (password.length < 8) return { error: 'Use at least 8 characters.' };
     if (password !== String(fd.get('confirm') || '')) return { error: 'The two passwords do not match.' };
-    await setPassword(password);
-  } else if (!(await checkPassword(password))) {
-    return { error: 'Wrong password.' };
+    await setPassword(password, username);
+  } else if (!(await checkLogin(username, password))) {
+    return { error: 'Wrong login ID or password.' };
   }
   await createSession();
   redirect('/admin');
@@ -60,14 +62,15 @@ export async function logoutAction() {
   redirect('/admin/login');
 }
 
-export async function changePassword(current: string, next: string): Promise<Result> {
+export async function changePassword(current: string, next: string, username?: string): Promise<Result> {
   try {
     await assertAdmin();
     if (!(await checkPassword(current))) return { ok: false, error: 'Current password is wrong.' };
     if (next.length < 8) return { ok: false, error: 'Use at least 8 characters.' };
-    await setPassword(next);
+    if (username !== undefined && !username.trim()) return { ok: false, error: 'Login ID cannot be empty.' };
+    await setPassword(next, username);
     await createSession();
-    return { ok: true, message: 'Password changed. Other devices have been signed out.' };
+    return { ok: true, message: 'Login details changed. Other devices have been signed out.' };
   } catch (e) {
     return fail(e);
   }

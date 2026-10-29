@@ -1,19 +1,21 @@
 import { PasswordForm } from '@/components/admin/PasswordForm';
+import { adminUsername } from '@/lib/auth';
 import { logoutAction } from '../../actions';
 
 export const metadata = { title: 'Account' };
 
-export default function AccountPage() {
+export default async function AccountPage() {
+  const username = await adminUsername();
   return (
     <>
       <div className="a-top">
         <div>
           <h1>Account</h1>
-          <p>Change the dashboard password. Changing it signs out every other device.</p>
+          <p>Change the dashboard login ID and password. Changing them signs out every other device.</p>
         </div>
       </div>
       <div className="card" style={{ maxWidth: 520 }}>
-        <PasswordForm />
+        <PasswordForm username={username} />
       </div>
       <div className="card" style={{ maxWidth: 520 }}>
         <h2>Sign out</h2>
