@@ -26,7 +26,7 @@ export default async function Awards() {
       {roles.length ? (
         <Sec alt>
           <Hd eyebrow="Roles" title="Leadership & Responsibilities" />
-          <div className="al" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
+          <div className="al">
             {roles.map((a) => (
               <AwardCard key={a.id} a={a} />
             ))}

@@ -16,6 +16,7 @@ export interface Story extends Base {
 
 export interface Video extends Base {
   title: string;
+  section: string;
   platform: string;
   url: string;
   image: string;
@@ -58,6 +59,27 @@ export interface TextItem extends Base {
   text: string;
 }
 
+export interface Unit extends Base {
+  name: string;
+  president: string;
+  text: string;
+  videoUrl: string;
+  sourceUrl: string;
+}
+
+export interface Demand extends Base {
+  title: string;
+  text: string;
+  status: string;
+}
+
+export interface Coverage extends Base {
+  outlet: string;
+  title: string;
+  date: string;
+  url: string;
+}
+
 export interface Settings {
   logoFirst: string;
   logoAccent: string;
@@ -75,6 +97,8 @@ export interface Settings {
   storeSubmissions: boolean;
 
   heroEyebrow: string;
+  heroName: string;
+  heroNameHindi: string;
   heroTitle: string;
   heroRedFrom: number;
   heroText: string;
@@ -124,6 +148,7 @@ export interface Settings {
   email: string;
   instagram: string;
   instagramHandle: string;
+  linkedin: string;
   facebook: string;
   x: string;
   youtube: string;
@@ -138,11 +163,22 @@ export interface Settings {
   districts: string;
   joinRoles: string;
 
+  sanghName: string;
+  sanghIntro: string;
+  credentials: string;
+  foundationDay: string;
+  demandsIntro: string;
+  unitsIntro: string;
+  pressIntro: string;
+  followTitle: string;
+  followText: string;
+
   footerText: string;
   footerScript: string;
 }
 
 export interface Content {
+  version?: number;
   settings: Settings;
   stories: Story[];
   videos: Video[];
@@ -156,9 +192,12 @@ export interface Content {
   aboutStats: Stat[];
   benefits: TextItem[];
   pressLogos: TextItem[];
+  units: Unit[];
+  demands: Demand[];
+  coverage: Coverage[];
 }
 
-export type CollectionKey = Exclude<keyof Content, 'settings'>;
+export type CollectionKey = Exclude<keyof Content, 'settings' | 'version'>;
 export type AnyItem = Base & Record<string, unknown>;
 
 export interface Submission {

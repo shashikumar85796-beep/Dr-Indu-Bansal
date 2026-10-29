@@ -32,7 +32,7 @@ export interface Field {
 export interface CollectionDef {
   label: string;
   singular: string;
-  group: 'Content' | 'Page sections';
+  group: 'Content' | 'Sangh' | 'Page sections';
   description: string;
   titleKey: string;
   subKeys: string[];
@@ -70,13 +70,14 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
     group: 'Content',
     description: 'Video links shown on the Media page. The featured one appears large on the home page.',
     titleKey: 'title',
-    subKeys: ['platform'],
+    subKeys: ['section', 'platform'],
     imageKey: 'image',
     fields: [
       { key: 'title', label: 'Title', type: 'text', required: true, wide: true },
+      { key: 'section', label: 'Shown under', type: 'select', options: ['News', 'Songs'], help: 'Media page groups videos into News & programmes and Sangh songs.' },
       { key: 'platform', label: 'Platform', type: 'text', suggest: true, placeholder: 'YouTube' },
       { key: 'url', label: 'Video link', type: 'url', required: true, placeholder: 'https://youtube.com/…' },
-      { key: 'image', label: 'Thumbnail', type: 'image', wide: true },
+      { key: 'image', label: 'Thumbnail', type: 'image', wide: true, help: 'Optional for YouTube links: the video’s own thumbnail is used automatically.' },
       { key: 'featured', label: 'Feature on home page', type: 'bool' },
       published,
     ],
@@ -209,6 +210,51 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
     subKeys: [],
     fields: [{ key: 'text', label: 'Benefit', type: 'textarea', required: true, wide: true }, published],
   },
+  units: {
+    label: 'District units',
+    singular: 'District unit',
+    group: 'Sangh',
+    description: 'District units and their activity, shown on the Sangh page and counted on the home page.',
+    titleKey: 'name',
+    subKeys: ['president'],
+    fields: [
+      { key: 'name', label: 'District / unit', type: 'text', required: true },
+      { key: 'president', label: 'District president', type: 'text', help: 'Leave empty if not confirmed.' },
+      { key: 'text', label: 'Activity', type: 'textarea', wide: true },
+      { key: 'videoUrl', label: 'Video link', type: 'url', placeholder: 'https://youtube.com/…' },
+      { key: 'sourceUrl', label: 'News report link', type: 'url', placeholder: 'https://…' },
+      published,
+    ],
+  },
+  demands: {
+    label: 'Demands',
+    singular: 'Demand',
+    group: 'Sangh',
+    description: 'The Sangh’s demands to the government, with their current status. The first three appear on the home page.',
+    titleKey: 'title',
+    subKeys: ['status'],
+    fields: [
+      { key: 'title', label: 'Demand', type: 'text', required: true, wide: true },
+      { key: 'status', label: 'Status', type: 'select', options: ['Raised with government', 'Memorandum submitted', 'In progress', 'Achieved'] },
+      { key: 'text', label: 'Details', type: 'textarea', wide: true },
+      published,
+    ],
+  },
+  coverage: {
+    label: 'Press coverage',
+    singular: 'News report',
+    group: 'Sangh',
+    description: 'Links to news reports, shown on the In the News page. The first three appear on the home page.',
+    titleKey: 'title',
+    subKeys: ['outlet', 'date'],
+    fields: [
+      { key: 'title', label: 'Headline', type: 'text', required: true, wide: true },
+      { key: 'outlet', label: 'Newspaper / website', type: 'text', suggest: true, required: true },
+      { key: 'date', label: 'Date', type: 'text', placeholder: '26 Oct 2026' },
+      { key: 'url', label: 'Article link', type: 'url', required: true, wide: true, placeholder: 'https://…' },
+      published,
+    ],
+  },
   pressLogos: {
     label: 'In the news',
     singular: 'Publication',
@@ -253,9 +299,11 @@ export const SETTINGS_GROUPS: { id: string; title: string; fields: Field[] }[] =
     id: 'hero',
     title: 'Home hero',
     fields: [
-      { key: 'heroEyebrow', label: 'Small heading', type: 'text', wide: true },
-      { key: 'heroTitle', label: 'Big headline', type: 'lines', wide: true, help: 'One line per row. Wrap a word in _underscores_ to underline it.' },
-      { key: 'heroRedFrom', label: 'Red from line number', type: 'number' },
+      { key: 'heroEyebrow', label: 'Small heading (roles)', type: 'text', wide: true },
+      { key: 'heroName', label: 'Name (big heading)', type: 'text', help: 'The last word is shown in red.' },
+      { key: 'heroNameHindi', label: 'Name in Hindi', type: 'text' },
+      { key: 'heroTitle', label: 'Slogan', type: 'lines', wide: true, help: 'Shown under the name. Line breaks become spaces; wrap a word in _underscores_ to underline it.' },
+      { key: 'heroRedFrom', label: 'Slogan red from line number', type: 'number' },
       { key: 'heroText', label: 'Intro text', type: 'textarea', wide: true },
       { key: 'heroImage', label: 'Portrait (transparent PNG/WebP works best)', type: 'image', wide: true },
       { key: 'heroCta1Label', label: 'Main button text', type: 'text' },
@@ -303,6 +351,21 @@ export const SETTINGS_GROUPS: { id: string; title: string; fields: Field[] }[] =
     ],
   },
   {
+    id: 'sangh',
+    title: 'Sangh page',
+    fields: [
+      { key: 'sanghName', label: 'Union name', type: 'text', wide: true },
+      { key: 'sanghIntro', label: 'Introduction', type: 'textarea', wide: true },
+      { key: 'credentials', label: 'Registrations & certifications', type: 'lines', wide: true, help: 'One per line. Shown as trust badges on the home and Sangh pages.' },
+      { key: 'foundationDay', label: 'Foundation Day note', type: 'textarea', wide: true },
+      { key: 'demandsIntro', label: 'Demands intro', type: 'text', wide: true },
+      { key: 'unitsIntro', label: 'District units intro', type: 'text', wide: true },
+      { key: 'pressIntro', label: 'In the News page subtitle', type: 'text', wide: true },
+      { key: 'followTitle', label: 'Social section heading', type: 'text' },
+      { key: 'followText', label: 'Social section text', type: 'text', wide: true },
+    ],
+  },
+  {
     id: 'gallery',
     title: 'Gallery',
     fields: [
@@ -323,6 +386,7 @@ export const SETTINGS_GROUPS: { id: string; title: string; fields: Field[] }[] =
       { key: 'email', label: 'Email', type: 'text' },
       { key: 'instagram', label: 'Instagram link', type: 'url' },
       { key: 'instagramHandle', label: 'Instagram handle', type: 'text' },
+      { key: 'linkedin', label: 'LinkedIn link', type: 'url' },
       { key: 'facebook', label: 'Facebook link', type: 'url' },
       { key: 'x', label: 'X (Twitter) link', type: 'url' },
       { key: 'youtube', label: 'YouTube link', type: 'url' },

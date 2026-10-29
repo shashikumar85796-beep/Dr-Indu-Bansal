@@ -7,7 +7,7 @@ import { getContent, getSubmissions } from '@/lib/store';
 export default async function Panel({ children }: { children: ReactNode }) {
   await requireAdmin();
   const [{ settings: s }, subs] = await Promise.all([getContent(), getSubmissions()]);
-  const groups = (['Content', 'Page sections'] as const).map((g) => ({
+  const groups = (['Content', 'Sangh', 'Page sections'] as const).map((g) => ({
     title: g,
     links: COLLECTION_KEYS.filter((k) => COLLECTIONS[k].group === g).map((k) => ({ href: `/admin/c/${k}`, label: COLLECTIONS[k].label })),
   }));

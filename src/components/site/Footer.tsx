@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { NAV } from '@/lib/nav';
+import { FOOTER_NAV } from '@/lib/nav';
 import type { Settings } from '@/lib/types';
 import { lines, waLink } from '@/lib/utils';
 import { Socials } from './blocks';
@@ -22,12 +22,11 @@ export function Footer({ s }: { s: Settings }) {
         <div>
           <h4>Quick Links</h4>
           <div style={{ columns: 2 }}>
-            {NAV.map(([href, label]) => (
+            {FOOTER_NAV.map(([href, label]) => (
               <Link key={href} href={href}>
                 {label}
               </Link>
             ))}
-            <Link href="/join">Join the Sangh</Link>
           </div>
         </div>
         <div>

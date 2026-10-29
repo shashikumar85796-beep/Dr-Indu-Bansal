@@ -13,6 +13,7 @@ export async function formContext(): Promise<FormCtx> {
     suggestions: {
       category: uniq(c.stories.map((s) => s.category)),
       platform: uniq(['YouTube', 'YouTube Short', 'Facebook', 'Instagram Reel', ...c.videos.map((v) => v.platform)]),
+      outlet: uniq(c.coverage.map((x) => x.outlet)),
     },
   };
 }

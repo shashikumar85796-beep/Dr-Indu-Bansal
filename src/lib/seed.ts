@@ -1,5 +1,6 @@
 import type { Content, Story } from './types';
 import { slugify } from './utils';
+import { CHANNEL_VIDEOS, COVERAGE, DEMANDS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, UNITS, YOUTUBE_CHANNEL, pressItems } from './verified';
 
 // Initial content, taken from the original single-page site. Written to data/content.json on first run.
 
@@ -24,8 +25,17 @@ const story = (
   sourceUrl,
 });
 
+export const CONTENT_VERSION = 2;
+
+export const OLD_HERO_EYEBROW = 'Journalist · Filmmaker · Haryana';
+export const NEW_HERO_EYEBROW = 'Senior Journalist · Documentary Filmmaker · Haryana';
+export const OLD_ABOUT_BIO_END = 'Through both, she speaks for working journalists on welfare, safety and fair treatment.';
+export const NEW_ABOUT_BIO_END =
+  'Through both, she speaks for working journalists on welfare, safety and fair treatment. She is also the founder and editor-in-chief of Khabar Palika, Sonipat NCR.';
+
 export function seedContent(): Content {
   return {
+    version: CONTENT_VERSION,
     settings: {
       logoFirst: 'DR. INDU',
       logoAccent: 'BANSAL',
@@ -43,7 +53,9 @@ export function seedContent(): Content {
       showWhatsApp: true,
       storeSubmissions: true,
 
-      heroEyebrow: 'Journalist · Filmmaker · Haryana',
+      heroEyebrow: NEW_HERO_EYEBROW,
+      heroName: 'Dr. Indu Bansal',
+      heroNameHindi: 'डॉ. इंदु बंसल',
       heroTitle: 'People.\nStories.\nA _Stronger_\nHaryana.',
       heroRedFrom: 3,
       heroText:
@@ -57,7 +69,7 @@ export function seedContent(): Content {
       aboutShort:
         'Journalist and documentary filmmaker from Sonipat, Haryana, with more than 23 years in news reporting, media and film production. Founder and State President of Shramjeevi Patrakar Sangh Haryana and National Spokesperson of Bharti Shramjeevi Patrakar Sangh.',
       aboutBio:
-        'Dr. Indu Bansal is a journalist and documentary filmmaker from Sonipat, Haryana. In more than 23 years she has worked across journalism, media, news reporting and film production, including religious and political documentaries. She holds a Master’s degree and an M.Phil.\n\nShe is the founder and state president of Shramjeevi Patrakar Sangh Haryana and the National Spokesperson of Bharti Shramjeevi Patrakar Sangh, New Delhi. Through both, she speaks for working journalists on welfare, safety and fair treatment.',
+        'Dr. Indu Bansal is a journalist and documentary filmmaker from Sonipat, Haryana. In more than 23 years she has worked across journalism, media, news reporting and film production, including religious and political documentaries. She holds a Master’s degree and an M.Phil.\n\nShe is the founder and state president of Shramjeevi Patrakar Sangh Haryana and the National Spokesperson of Bharti Shramjeevi Patrakar Sangh, New Delhi. Through both, she speaks for working journalists on welfare, safety and fair treatment. She is also the founder and editor-in-chief of Khabar Palika, Sonipat NCR.',
       aboutIntro: 'Journalist, documentary filmmaker and a voice for working journalists.',
       aboutImage: '',
 
@@ -97,9 +109,10 @@ export function seedContent(): Content {
       email: '',
       instagram: 'https://www.instagram.com/spshharyana/',
       instagramHandle: '@spshharyana',
+      linkedin: LINKEDIN,
       facebook: '',
       x: '',
-      youtube: '',
+      youtube: YOUTUBE_CHANNEL,
 
       contactIntro: 'Story tips, membership, media enquiries and collaborations are all welcome.',
       contactTopics: 'Story tip\nMedia enquiry\nCollaboration\nOther',
@@ -113,6 +126,19 @@ export function seedContent(): Content {
         'Ambala\nBhiwani\nCharkhi Dadri\nFaridabad\nFatehabad\nGurugram\nHisar\nJhajjar\nJind\nKaithal\nKarnal\nKurukshetra\nMahendragarh\nNuh\nPalwal\nPanchkula\nPanipat\nRewari\nRohtak\nSirsa\nSonipat\nYamunanagar\nOutside Haryana',
       joinRoles:
         'Reporter\nEditor\nPhotographer / Videographer\nNews anchor\nDigital / web journalist\nFreelancer\nOther',
+
+      sanghName: 'Shramjeevi Patrakar Sangh Haryana',
+      sanghIntro:
+        'A trade union of working journalists in Haryana, founded and led by Dr. Indu Bansal as state president. The Sangh works for journalists’ welfare, safety and fair treatment, with district units across the state.',
+      // As stated in the Sangh's own Instagram bio and YouTube channel description.
+      credentials: 'Registered under the Indian Trade Union Act, 1926\nISO certified journalists’ union\nRegistered trademark (TM)',
+      foundationDay:
+        'The Sangh celebrates its Foundation Day on National Press Day, 16 November. In 2025, programmes were held at district headquarters across Haryana.',
+      demandsIntro: 'Pending demands the Sangh has taken to the government on behalf of working journalists.',
+      unitsIntro: 'District units and recent activity, as reported in the press and on the Sangh’s YouTube channel.',
+      pressIntro: 'News reports about Dr. Indu Bansal and Shramjeevi Patrakar Sangh Haryana. Each link opens the original article.',
+      followTitle: 'Follow the Sangh',
+      followText: 'Regular updates, event photos and videos from districts across Haryana.',
 
       footerText: 'Stories that inform. Journalism that empowers. Working for a better, more informed Haryana.',
       footerScript: 'Journalism\nfor People',
@@ -180,11 +206,12 @@ export function seedContent(): Content {
       id: `v${i + 1}`,
       published: true,
       title: title as string,
+      section: 'News',
       platform: platform as string,
       url: url as string,
       image: '',
       featured: featured as boolean,
-    })),
+    })).concat(CHANNEL_VIDEOS),
 
     gallery: Array.from({ length: 12 }, (_, i) => ({
       id: `g${i + 1}`,
@@ -209,7 +236,7 @@ export function seedContent(): Content {
       title,
       subtitle,
       description,
-    })),
+    })).concat(KHABAR_PALIKA_ROLE),
 
     milestones: [
       ['2008', 'Best Journalist Award', 'Honoured by the Governor of Haryana.'],
@@ -267,6 +294,10 @@ export function seedContent(): Content {
       id: `p${i + 1}`,
       published: true,
       text,
-    })),
+    })).concat(pressItems(EXTRA_PRESS)),
+
+    units: UNITS,
+    demands: DEMANDS,
+    coverage: COVERAGE,
   };
 }

@@ -1,13 +1,36 @@
 import Link from 'next/link';
 import type { CSSProperties } from 'react';
-import { Band, Connect, Hd, HeroTitle, IconItem, Logos, Sec, StatStrip, StoryCard } from '@/components/site/blocks';
+import {
+  Band,
+  Connect,
+  CoverageCard,
+  Credentials,
+  DemandCard,
+  Hd,
+  IconItem,
+  Logos,
+  Sec,
+  Slogan,
+  SocialIcon,
+  StatStrip,
+  StoryCard,
+  socialLinks,
+} from '@/components/site/blocks';
 import { GalleryGrid } from '@/components/site/GalleryGrid';
 import { Icon } from '@/components/site/Icon';
 import { Photo, SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
-import { isNumeric, visible } from '@/lib/utils';
+import { isNumeric, videoThumb, visible, waLink } from '@/lib/utils';
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
+
+const FOLLOW_TEXT: Record<string, string> = {
+  Instagram: 'Event photos, press clippings and reels',
+  YouTube: 'District programmes and Sangh songs',
+  Facebook: 'News and announcements',
+  LinkedIn: 'Professional profile',
+  X: 'Latest posts',
+};
 
 export default async function Home() {
   const c = await getContent();
@@ -16,20 +39,28 @@ export default async function Home() {
   const honours = visible(c.awards).filter((a) => a.kind === 'Honour').slice(0, 4);
   const videos = visible(c.videos);
   const featured = videos.find((v) => v.featured) || videos[0];
-  const sideVideos = videos.filter((v) => v !== featured).slice(0, 3);
+  const sideVideos = videos.filter((v) => v !== featured && v.section !== 'Songs').slice(0, 3);
   const portrait = s.aboutImage || s.heroImage;
   const stats = visible(c.homeStats);
   const numStat = stats.find((x) => isNumeric(x.value));
   const textStat = stats.find((x) => !isNumeric(x.value));
+  const units = visible(c.units);
+  const demands = visible(c.demands).slice(0, 3);
+  const coverage = visible(c.coverage).slice(0, 3);
+  const socials = socialLinks(s);
+  const nameWords = (s.heroName || s.personName).trim().split(/\s+/);
+  const nameLast = nameWords.pop();
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Person',
     name: s.personName,
-    jobTitle: 'Journalist and documentary filmmaker',
+    alternateName: s.heroNameHindi || undefined,
+    jobTitle: 'Senior journalist and documentary filmmaker',
     homeLocation: s.location,
     telephone: s.phone || undefined,
-    memberOf: 'Shramjeevi Patrakar Sangh Haryana',
+    memberOf: s.sanghName,
+    sameAs: socials.map(([href]) => href),
   };
 
   return (
@@ -39,7 +70,24 @@ export default async function Home() {
         <div className="w hero3-in">
           <div className="h3t">
             <span className="ey ld">{s.heroEyebrow}</span>
-            <HeroTitle text={s.heroTitle} redFrom={s.heroRedFrom} />
+            <h1 className="hname">
+              <span className="ld" style={d('.1s')}>
+                {nameWords.join(' ')}
+              </span>{' '}
+              <span className="r ld" style={d('.22s')}>
+                {nameLast}
+              </span>
+            </h1>
+            {s.heroNameHindi ? (
+              <p className="hhi ld" lang="hi" style={d('.34s')}>
+                {s.heroNameHindi}
+              </p>
+            ) : null}
+            {s.heroTitle ? (
+              <p className="slogan ld" style={d('.44s')}>
+                <Slogan text={s.heroTitle} redFrom={s.heroRedFrom} />
+              </p>
+            ) : null}
             <p className="t ld" style={d('.55s')}>
               {s.heroText}
             </p>
@@ -121,8 +169,10 @@ export default async function Home() {
       </section>
 
       <Sec>
-        <Hd eyebrow={s.initiativesEyebrow} title={s.initiativesTitle} link={['/join', 'Join the Sangh']} />
-        <div className="g4">
+        <Hd eyebrow={s.initiativesEyebrow} title={s.sanghName} link={['/sangh', 'About the Sangh']} />
+        <p className="lead">{s.sanghIntro}</p>
+        <Credentials s={s} />
+        <div className="g4" style={{ marginTop: 28 }}>
           {visible(c.initiatives).map((x) => (
             <div className="ac" key={x.id}>
               <Icon name={x.icon} />
@@ -131,6 +181,43 @@ export default async function Home() {
             </div>
           ))}
         </div>
+        {demands.length || units.length ? (
+          <div className="sgh">
+            {demands.length ? (
+              <div className="sgh-c">
+                <div className="sgh-t">
+                  <h3>Key demands</h3>
+                  <Link className="va" href="/sangh#demands">
+                    All demands →
+                  </Link>
+                </div>
+                <div className="dms sm">
+                  {demands.map((x, i) => (
+                    <DemandCard key={x.id} d={x} n={i + 1} />
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            {units.length ? (
+              <div className="sgh-c">
+                <div className="sgh-t">
+                  <h3>Where the Sangh is active</h3>
+                  <Link className="va" href="/sangh#units">
+                    See all →
+                  </Link>
+                </div>
+                <ul className="chips">
+                  {units.map((u) => (
+                    <li key={u.id}>{u.name}</li>
+                  ))}
+                </ul>
+                <Link className="btn" href="/join" style={{ marginTop: 18 }}>
+                  {s.joinCta}
+                </Link>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
       </Sec>
 
       {stories.length ? (
@@ -167,7 +254,7 @@ export default async function Home() {
               </Link>
             </div>
             <a href={featured.url} target="_blank" rel="noopener" aria-label={`Watch: ${featured.title}`} style={{ display: 'block' }}>
-              <Photo className="big" src={featured.image} i={0} sizes="(max-width:900px) 100vw, 50vw">
+              <Photo className="big" src={videoThumb(featured)} i={0} sizes="(max-width:900px) 100vw, 50vw">
                 <div className="pl">▶</div>
                 <h3 style={{ fontSize: 'clamp(20px,2.6vw,26px)', right: 20 }}>{featured.title}</h3>
               </Photo>
@@ -175,7 +262,7 @@ export default async function Home() {
             <div className="vl">
               {sideVideos.map((v, i) => (
                 <a className="vi" key={v.id} href={v.url} target="_blank" rel="noopener">
-                  <Photo src={v.image} i={i + 1} sizes="92px" />
+                  <Photo src={videoThumb(v)} i={i + 1} sizes="92px" />
                   <p style={{ margin: 0 }}>
                     {v.title}
                     <span>{v.platform}</span>
@@ -191,6 +278,44 @@ export default async function Home() {
         <Hd eyebrow={s.galleryEyebrow} title={s.galleryTitle} link={['/gallery', 'View Gallery']} />
         <GalleryGrid items={visible(c.gallery).slice(0, 5)} />
       </Sec>
+
+      {coverage.length ? (
+        <Sec alt>
+          <Hd eyebrow={s.pressEyebrow} title="Press coverage" link={['/press', 'All news reports']} />
+          <div className="cvs">
+            {coverage.map((x) => (
+              <CoverageCard key={x.id} c={x} />
+            ))}
+          </div>
+        </Sec>
+      ) : null}
+
+      {socials.length || s.whatsapp ? (
+        <Sec>
+          <Hd eyebrow="Social" title={s.followTitle} />
+          {s.followText ? <p className="lead">{s.followText}</p> : null}
+          <div className="fw">
+            {socials.map(([href, label]) => (
+              <a key={label} className="fwc" href={href} target="_blank" rel="noopener">
+                <span className="fwi">
+                  <SocialIcon name={label} />
+                </span>
+                <b>{label}</b>
+                <span>{label === 'Instagram' && s.instagramHandle ? s.instagramHandle : FOLLOW_TEXT[label]}</span>
+                <span className="fwa">Open ↗</span>
+              </a>
+            ))}
+            {s.whatsapp ? (
+              <a className="fwc" href={waLink(s.whatsapp, s.waGreeting)} target="_blank" rel="noopener">
+                <span className="fwi wa">✆</span>
+                <b>WhatsApp</b>
+                <span>{s.phone || 'Message directly'}</span>
+                <span className="fwa">Chat ↗</span>
+              </a>
+            ) : null}
+          </div>
+        </Sec>
+      ) : null}
 
       <Band s={s} />
       <Logos s={s} items={visible(c.pressLogos)} />

@@ -3,7 +3,8 @@ import crypto from 'crypto';
 import { promises as fs } from 'fs';
 import path from 'path';
 import { del, get, list, put } from '@vercel/blob';
-import { seedContent } from './seed';
+import { CONTENT_VERSION, NEW_ABOUT_BIO_END, NEW_HERO_EYEBROW, OLD_ABOUT_BIO_END, OLD_HERO_EYEBROW, seedContent } from './seed';
+import { CHANNEL_VIDEOS, EXTRA_PRESS, KHABAR_PALIKA_ROLE, LINKEDIN, YOUTUBE_CHANNEL, pressItems } from './verified';
 import type { CollectionKey, Content, Submission } from './types';
 
 /*
@@ -75,16 +76,42 @@ function serial<T>(fn: () => Promise<T>): Promise<T> {
   return run;
 }
 
-/** Fills in any keys missing from older content with the seed defaults. */
+/** Fills in any keys missing from older content with the seed defaults, then applies pending migrations. */
 export function normalize(raw: Partial<Content>): Content {
   const seed = seedContent();
   const out = { ...seed, settings: { ...seed.settings, ...(raw.settings || {}) } } as Content;
   for (const key of Object.keys(seed) as (keyof Content)[]) {
-    if (key === 'settings') continue;
+    if (key === 'settings' || key === 'version') continue;
     const items = raw[key];
     if (Array.isArray(items)) (out as unknown as Record<string, unknown>)[key] = items;
   }
-  return out;
+  out.version = raw.version || 1;
+  return migrate(out);
+}
+
+/**
+ * Brings content saved by an older version up to date without overwriting edits: only empty fields
+ * and untouched default texts are changed, and new items are added only if not already present.
+ * Lists that didn't exist yet (units, demands, coverage) already came from the seed above.
+ */
+function migrate(c: Content): Content {
+  if ((c.version || 1) >= CONTENT_VERSION) return c;
+  const s = c.settings;
+  if (!s.youtube) s.youtube = YOUTUBE_CHANNEL;
+  if (!s.linkedin) s.linkedin = LINKEDIN;
+  if (s.heroEyebrow === OLD_HERO_EYEBROW) s.heroEyebrow = NEW_HERO_EYEBROW;
+  const bio = s.aboutBio.trim();
+  if (bio.endsWith(OLD_ABOUT_BIO_END)) s.aboutBio = bio.slice(0, -OLD_ABOUT_BIO_END.length) + NEW_ABOUT_BIO_END;
+
+  c.videos = c.videos.map((v) => ({ ...v, section: v.section || 'News' }));
+  const urls = new Set(c.videos.map((v) => v.url));
+  c.videos.push(...CHANNEL_VIDEOS.filter((v) => !urls.has(v.url)));
+  if (!c.awards.some((a) => /khabar palika/i.test(`${a.title} ${a.subtitle}`))) c.awards.push(KHABAR_PALIKA_ROLE);
+  const names = new Set(c.pressLogos.map((p) => p.text.toLowerCase()));
+  c.pressLogos.push(...pressItems(EXTRA_PRESS.filter((n) => !names.has(n.toLowerCase()))));
+
+  c.version = CONTENT_VERSION;
+  return c;
 }
 
 export async function getContent(): Promise<Content> {
