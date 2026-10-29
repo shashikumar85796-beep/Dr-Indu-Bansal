@@ -37,19 +37,24 @@ Every list supports add, edit, duplicate, delete, show/hide, search, and drag-to
 
 ## How content is stored
 
-Everything lives in `data/` (or `DATA_DIR`):
+Storage is picked automatically:
 
-- `content.json`: all site content (created from `src/lib/seed.ts` on first run)
-- `submissions.json`: inbox messages
-- `uploads/`: uploaded images, served at `/uploads/<file>`
-- `auth.json`: password hash and session secret
+- **On Vercel:** Upstash Redis holds the content, inbox and login data, and Vercel Blob holds uploaded images.
+- **Locally:** everything lives in  (or ): , ,  and . It is git-ignored, so back it up.
 
-Back up the `data/` folder. It is git-ignored.
+The dashboard overview shows which storage is in use.
+
+## Deploying to Vercel
+
+1. Import this repository in Vercel, or run  from this folder.
+2. In the Vercel project, open **Storage** and add:
+   - **Upstash Redis** (from the Marketplace). This sets  and .
+   - **Blob**, created as a **public** store. This sets .
+3. In **Settings → Environment Variables**, add  (and optionally ).
+4. Redeploy. On the first visit the site fills Redis with the starting content.
+
+Uploads larger than 3.5 MB are shrunk in the browser before upload, because Vercel limits request bodies to 4.5 MB.
 
 ## Performance
 
-Public pages are pre-rendered as static HTML and refreshed the moment you save in the dashboard. Fonts are self-hosted through `next/font`, and images go through `next/image` (AVIF/WebP, resized per device).
-
-## Hosting
-
-The site writes to `data/`, so it needs a Node.js host with a persistent disk: a VPS, Railway, Render (with a disk), Fly.io (with a volume) or similar. Serverless hosts with a read-only filesystem (such as Vercel) would need the storage in `src/lib/store.ts` moved to a database.
+Public pages are pre-rendered as static HTML and refreshed the moment you save in the dashboard. Fonts are self-hosted through , and images go through  (AVIF/WebP, resized per device).

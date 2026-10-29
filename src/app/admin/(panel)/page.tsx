@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { COLLECTIONS, COLLECTION_KEYS } from '@/lib/schema';
-import { getContent, getSubmissions, listUploads } from '@/lib/store';
+import { getContent, getSubmissions, listUploads, storageLabel } from '@/lib/store';
 
 export const metadata = { title: 'Overview' };
 
@@ -99,6 +99,7 @@ export default async function Overview() {
                 so they show in the footer.
               </p>
             ) : null}
+            <p className="muted">Storage: {storageLabel()}</p>
             <p>
               Download a{' '}
               <Link href="/admin/backup" style={{ color: 'var(--red)' }}>

@@ -1,9 +1,8 @@
 import crypto from 'crypto';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { isAdmin } from '@/lib/auth';
-import { UPLOAD_DIR } from '@/lib/store';
+import { saveUpload } from '@/lib/store';
 
+// Vercel rejects request bodies over 4.5 MB; the dashboard shrinks larger photos before sending.
 const MAX = 10 * 1024 * 1024;
 
 // Checked against the file's first bytes, not the browser-supplied type.
@@ -26,7 +25,6 @@ export async function POST(req: Request) {
   const files = form.getAll('file').filter((f): f is File => f instanceof File);
   if (!files.length) return Response.json({ error: 'No file received.' }, { status: 400 });
 
-  await fs.mkdir(UPLOAD_DIR, { recursive: true });
   const saved: { name: string; url: string }[] = [];
   const errors: string[] = [];
   for (const file of files) {
@@ -40,10 +38,13 @@ export async function POST(req: Request) {
       errors.push(`${file.name}: not a JPG, PNG, WebP, GIF or AVIF image`);
       continue;
     }
-    const base = path.parse(file.name).name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'image';
+    const base = file.name.replace(/\.[^.]*$/, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 40) || 'image';
     const name = `${base}-${crypto.randomBytes(4).toString('hex')}.${ext}`;
-    await fs.writeFile(path.join(UPLOAD_DIR, name), buf);
-    saved.push({ name, url: `/uploads/${name}` });
+    try {
+      saved.push({ name, url: await saveUpload(name, buf, `image/${ext === 'jpg' ? 'jpeg' : ext}`) });
+    } catch (e) {
+      errors.push(e instanceof Error ? e.message : 'Upload failed.');
+    }
   }
   return Response.json({ saved, errors }, { status: saved.length ? 200 : 400 });
 }

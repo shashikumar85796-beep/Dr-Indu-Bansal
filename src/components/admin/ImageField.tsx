@@ -4,9 +4,35 @@ import { useRef, useState } from 'react';
 
 export type Upload = { name: string; url: string; size: number };
 
+const SHRINK_OVER = 3.5 * 1024 * 1024;
+const MAX_SIDE = 2560;
+
+/** Re-encodes large photos in the browser so uploads stay under the host's 4.5 MB request limit. */
+async function shrink(file: File): Promise<File> {
+  if (file.size <= SHRINK_OVER || file.type === 'image/gif') return file;
+  try {
+    const bmp = await createImageBitmap(file);
+    const scale = Math.min(1, MAX_SIDE / Math.max(bmp.width, bmp.height));
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.round(bmp.width * scale);
+    canvas.height = Math.round(bmp.height * scale);
+    canvas.getContext('2d')!.drawImage(bmp, 0, 0, canvas.width, canvas.height);
+    const blob = await new Promise<Blob | null>((r) => canvas.toBlob(r, 'image/webp', 0.86));
+    return blob && blob.size < file.size ? new File([blob], file.name.replace(/\.[^.]*$/, '.webp'), { type: 'image/webp' }) : file;
+  } catch {
+    return file;
+  }
+}
+
 export async function uploadFiles(files: FileList | File[]) {
+  // One request per file keeps each request small.
+  const all = await Promise.all(Array.from(files).map(async (f) => uploadOne(await shrink(f))));
+  return { saved: all.flatMap((r) => r.saved), errors: all.flatMap((r) => r.errors) };
+}
+
+async function uploadOne(file: File) {
   const fd = new FormData();
-  for (const f of Array.from(files)) fd.append('file', f);
+  fd.append('file', file);
   const res = await fetch('/admin/api/upload', { method: 'POST', body: fd });
   const data = (await res.json().catch(() => ({}))) as { saved?: { name: string; url: string }[]; errors?: string[]; error?: string };
   return { saved: data.saved || [], errors: data.errors || (data.error ? [data.error] : res.ok ? [] : ['Upload failed.']) };

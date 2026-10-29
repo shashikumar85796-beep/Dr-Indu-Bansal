@@ -1,13 +1,11 @@
 'use server';
 
-import { promises as fs } from 'fs';
-import path from 'path';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { assertAdmin, canSetupFromUi, checkPassword, createSession, destroySession, hasPassword, setPassword } from '@/lib/auth';
 import { allow, clientIp } from '@/lib/ratelimit';
 import { COLLECTIONS, SETTINGS_FIELDS, isCollection, type Field } from '@/lib/schema';
-import { UPLOAD_DIR, UPLOAD_NAME, getContent, normalize, updateContent, updateSubmissions } from '@/lib/store';
+import { getContent, normalize, removeUpload, updateContent, updateSubmissions } from '@/lib/store';
 import type { AnyItem, Content, Settings, Story } from '@/lib/types';
 import { newId, slugify } from '@/lib/utils';
 
@@ -209,8 +207,7 @@ export async function deleteSubmissions(ids: string[]): Promise<Result> {
 export async function deleteUpload(name: string): Promise<Result> {
   try {
     await assertAdmin();
-    if (!UPLOAD_NAME.test(name)) throw new Error('Invalid file.');
-    await fs.unlink(path.join(UPLOAD_DIR, name));
+    await removeUpload(name);
     return { ok: true };
   } catch (e) {
     return fail(e);

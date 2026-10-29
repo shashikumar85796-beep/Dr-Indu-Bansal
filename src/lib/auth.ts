@@ -1,13 +1,10 @@
 import 'server-only';
 import crypto from 'crypto';
-import { promises as fs } from 'fs';
-import path from 'path';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { SignJWT, jwtVerify } from 'jose';
-import { DATA_DIR, writeJson } from './store';
+import { readDoc, writeDoc } from './store';
 
-const AUTH_FILE = path.join(DATA_DIR, 'auth.json');
 const COOKIE = 'admin_session';
 const MAX_AGE = 7 * 24 * 3600;
 
@@ -18,15 +15,7 @@ interface AuthFile {
   ver?: number;
 }
 
-async function readAuth(): Promise<AuthFile> {
-  try {
-    return JSON.parse(await fs.readFile(AUTH_FILE, 'utf8')) as AuthFile;
-  } catch {
-    const fresh: AuthFile = { secret: crypto.randomBytes(32).toString('hex'), ver: 0 };
-    await writeJson(AUTH_FILE, fresh);
-    return fresh;
-  }
-}
+const readAuth = () => readDoc<AuthFile>('auth', () => ({ secret: crypto.randomBytes(32).toString('hex'), ver: 0 }));
 
 const key = async () => new TextEncoder().encode(process.env.SESSION_SECRET || (await readAuth()).secret);
 const hashPw = (pw: string, salt: string) => crypto.scryptSync(pw, salt, 64);
@@ -58,7 +47,7 @@ export async function setPassword(pw: string) {
   a.salt = crypto.randomBytes(16).toString('hex');
   a.hash = hashPw(pw, a.salt).toString('hex');
   a.ver = (a.ver || 0) + 1;
-  await writeJson(AUTH_FILE, a);
+  await writeDoc('auth', a);
 }
 
 export async function createSession() {

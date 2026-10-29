@@ -15,7 +15,9 @@ export const tone = (i: number) => {
   return { '--a': t[0], '--b': t[1] } as CSSProperties;
 };
 
-/** Local images go through next/image; pasted external URLs fall back to a lazy <img>. */
+const BLOB_HOST = /^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//i;
+
+/** Local and Vercel Blob images go through next/image; pasted external URLs fall back to a lazy <img>. */
 export function SmartImg({
   src,
   alt,
@@ -36,7 +38,7 @@ export function SmartImg({
   className?: string;
 }) {
   const load = eager ? { loading: 'eager' as const, fetchPriority: 'high' as const } : { loading: 'lazy' as const };
-  if (src.startsWith('/'))
+  if (src.startsWith('/') || BLOB_HOST.test(src))
     return fill ? (
       <Image src={src} alt={alt} fill sizes={sizes} className={className} {...load} />
     ) : (
