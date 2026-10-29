@@ -1,0 +1,174 @@
+import Link from 'next/link';
+import type { CSSProperties } from 'react';
+import { Band, Connect, Hd, HeroTitle, IconItem, Logos, Sec, StatStrip, StoryCard } from '@/components/site/blocks';
+import { GalleryGrid } from '@/components/site/GalleryGrid';
+import { Icon } from '@/components/site/Icon';
+import { Photo, SmartImg } from '@/components/site/Photo';
+import { getContent } from '@/lib/store';
+import { visible } from '@/lib/utils';
+
+const d = (s: string) => ({ '--d': s }) as CSSProperties;
+
+export default async function Home() {
+  const c = await getContent();
+  const s = c.settings;
+  const stories = visible(c.stories).slice(0, 4);
+  const honours = visible(c.awards).filter((a) => a.kind === 'Honour').slice(0, 4);
+  const videos = visible(c.videos);
+  const featured = videos.find((v) => v.featured) || videos[0];
+  const sideVideos = videos.filter((v) => v !== featured).slice(0, 3);
+  const portrait = s.aboutImage || s.heroImage;
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: s.personName,
+    jobTitle: 'Journalist and documentary filmmaker',
+    homeLocation: s.location,
+    telephone: s.phone || undefined,
+    memberOf: 'Shramjeevi Patrakar Sangh Haryana',
+  };
+
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
+      <div className="hero2">
+        <span className="ey ld">{s.heroEyebrow}</span>
+        <HeroTitle text={s.heroTitle} redFrom={s.heroRedFrom} />
+        <p className="t ld" style={d('.6s')}>
+          {s.heroText}
+        </p>
+        <div className="bt ld" style={d('.75s')}>
+          {s.heroCta1Label ? (
+            <Link className="btn" href={s.heroCta1Link || '/updates'}>
+              {s.heroCta1Label}
+            </Link>
+          ) : null}
+          {s.heroCta2Label ? (
+            <Link className="btn o" href={s.heroCta2Link || '/media'}>
+              {s.heroCta2Label}
+            </Link>
+          ) : null}
+        </div>
+        {s.heroImage ? (
+          <div className="hp ld" style={d('.9s')}>
+            <div className="ring" />
+            <SmartImg src={s.heroImage} alt={s.personName} width={372} height={544} sizes="(max-width:560px) 70vw, 372px" eager />
+          </div>
+        ) : null}
+      </div>
+
+      <StatStrip stats={visible(c.homeStats)} />
+
+      <Sec>
+        <Hd eyebrow={s.servicesEyebrow} title={s.servicesTitle} />
+        <div className="wd">
+          {visible(c.services).map((w) => (
+            <div className="wc" key={w.id}>
+              <Icon name={w.icon} />
+              <h3>{w.title}</h3>
+              <p>{w.text}</p>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      <section className="rv">
+        <div className="w ab">
+          <div>
+            <span className="ey">About Me</span>
+            <h2>{s.personName}</h2>
+            <p className="d">{s.aboutShort}</p>
+            <Link className="btn" href="/about">
+              Read My Story →
+            </Link>
+          </div>
+          <div className="cir">
+            <div className="ph">{portrait ? <SmartImg src={portrait} alt={s.personName} width={372} height={544} sizes="300px" /> : null}</div>
+          </div>
+          <div className="ai">
+            {visible(c.highlights).map((h) => (
+              <IconItem key={h.id} f={h} />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <Sec>
+        <Hd eyebrow={s.initiativesEyebrow} title={s.initiativesTitle} link={['/join', 'Join the Sangh']} />
+        <div className="g4">
+          {visible(c.initiatives).map((x) => (
+            <div className="ac" key={x.id}>
+              <Icon name={x.icon} />
+              <h3>{x.title}</h3>
+              <p>{x.text}</p>
+            </div>
+          ))}
+        </div>
+      </Sec>
+
+      {stories.length ? (
+        <Sec>
+          <Hd eyebrow={s.updatesEyebrow} title={s.updatesTitle} link={['/updates', 'All updates']} />
+          <div className="g4">
+            {stories.map((st, i) => (
+              <StoryCard key={st.id} story={st} i={i} />
+            ))}
+          </div>
+        </Sec>
+      ) : null}
+
+      {honours.length ? (
+        <Sec>
+          <Hd eyebrow={s.honoursEyebrow} title={s.honoursTitle} link={['/awards', 'All honours']} />
+          <div className="aw">
+            {honours.map((a) => (
+              <IconItem key={a.id} f={{ icon: a.icon, title: a.title, text: a.subtitle }} />
+            ))}
+          </div>
+        </Sec>
+      ) : null}
+
+      {featured ? (
+        <Sec>
+          <div className="vd">
+            <div>
+              <span className="ey">{s.videoEyebrow}</span>
+              <h2>{s.videoTitle}</h2>
+              <p className="d">{s.videoText}</p>
+              <Link className="btn" href="/media">
+                Watch All Videos →
+              </Link>
+            </div>
+            <a href={featured.url} target="_blank" rel="noopener" aria-label={`Watch: ${featured.title}`} style={{ display: 'block' }}>
+              <Photo className="big" src={featured.image} i={0} sizes="(max-width:900px) 100vw, 50vw">
+                <div className="pl">▶</div>
+                <h3 style={{ fontSize: 'clamp(20px,2.6vw,26px)', right: 20 }}>{featured.title}</h3>
+              </Photo>
+            </a>
+            <div className="vl">
+              {sideVideos.map((v, i) => (
+                <a className="vi" key={v.id} href={v.url} target="_blank" rel="noopener">
+                  <Photo src={v.image} i={i + 1} sizes="92px" />
+                  <p style={{ margin: 0 }}>
+                    {v.title}
+                    <span>{v.platform}</span>
+                  </p>
+                </a>
+              ))}
+            </div>
+          </div>
+        </Sec>
+      ) : null}
+
+      <Sec>
+        <Hd eyebrow={s.galleryEyebrow} title={s.galleryTitle} link={['/gallery', 'View Gallery']} />
+        <GalleryGrid items={visible(c.gallery).slice(0, 5)} />
+      </Sec>
+
+      <Band s={s} />
+      <Logos s={s} items={visible(c.pressLogos)} />
+      <Connect s={s} />
+    </>
+  );
+}

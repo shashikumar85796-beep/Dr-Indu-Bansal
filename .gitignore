@@ -1,0 +1,13 @@
+node_modules/
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+.env*.local
+.env
+# Site content, uploads, inbox and admin password live here. Back it up; don't commit it.
+data/
+
+# Original single-file page kept for reference
+preview/
+.vercel
