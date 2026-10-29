@@ -541,3 +541,8 @@ h2{font-size:clamp(30px,3.4vw,44px)}
 @media (min-width:901px) and (max-width:1040px){.nv>.btn{display:none}}
 /* Entrance fade ends fully visible (the base .ld rule starts at opacity 0). */
 .ld{opacity:1;transform:none}
+
+/* Entrances never hide content: they only slide a few pixels, so a paused or throttled animation can't leave the page blank. */
+@keyframes pt{from{transform:translateY(8px)}}
+@keyframes up{from{transform:translateY(8px)}}
+.ld{opacity:1}
