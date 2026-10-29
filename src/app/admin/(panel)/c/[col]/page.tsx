@@ -1,6 +1,11 @@
+import { redirect } from 'next/navigation';
+import { requireAdmin } from '@/lib/auth';
+import { canEdit } from '@/lib/roles';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { BulkPhotos } from '@/components/admin/BulkPhotos';
 import { CollectionList } from '@/components/admin/CollectionList';
+import { lines } from '@/lib/utils';
 import { COLLECTIONS, isCollection } from '@/lib/schema';
 import { getContent } from '@/lib/store';
 import type { AnyItem } from '@/lib/types';
@@ -10,8 +15,10 @@ type Props = { params: Promise<{ col: string }> };
 export default async function CollectionPage({ params }: Props) {
   const { col } = await params;
   if (!isCollection(col)) notFound();
+  if (!canEdit(await requireAdmin(), col)) redirect('/admin?denied=1');
   const def = COLLECTIONS[col];
-  const items = (await getContent())[col] as unknown as AnyItem[];
+  const content = await getContent();
+  const items = content[col] as unknown as AnyItem[];
   const rows = items.map((it) => ({
     id: it.id,
     published: it.published,
@@ -35,6 +42,7 @@ export default async function CollectionPage({ params }: Props) {
           </Link>
         </div>
       </div>
+      {col === 'gallery' ? <BulkPhotos categories={lines(content.settings.galleryCategories)} /> : null}
       <CollectionList col={col} rows={rows} singular={def.singular} />
     </>
   );

@@ -1,3 +1,4 @@
+import { requireOwner } from '@/lib/auth';
 import { SettingsEditor } from '@/components/admin/Editors';
 import { getContent } from '@/lib/store';
 import { formContext } from '../formctx';
@@ -5,6 +6,7 @@ import { formContext } from '../formctx';
 export const metadata = { title: 'Site settings' };
 
 export default async function SettingsPage() {
+  await requireOwner();
   const [c, ctx] = await Promise.all([getContent(), formContext()]);
   return (
     <>

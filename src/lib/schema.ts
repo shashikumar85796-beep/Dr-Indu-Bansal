@@ -45,7 +45,7 @@ const published: Field = { key: 'published', label: 'Show on website', type: 'bo
 
 export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
   stories: {
-    label: 'Updates & news',
+    label: 'Updates & blog',
     singular: 'Update',
     group: 'Content',
     description: 'News stories shown on the Updates page and the home page (first four).',
@@ -256,13 +256,19 @@ export const COLLECTIONS: Record<CollectionKey, CollectionDef> = {
     ],
   },
   pressLogos: {
-    label: 'In the news',
-    singular: 'Publication',
-    group: 'Page sections',
-    description: 'Publication names in the scrolling “In the News” band.',
+    label: 'Partners & logos',
+    singular: 'Logo',
+    group: 'Content',
+    description: 'Partners and media outlets shown in the scrolling logo band. Add a logo image, or leave it empty to show the name.',
     titleKey: 'text',
-    subKeys: [],
-    fields: [{ key: 'text', label: 'Publication name', type: 'text', required: true, wide: true }, published],
+    subKeys: ['url'],
+    imageKey: 'image',
+    fields: [
+      { key: 'text', label: 'Name', type: 'text', required: true, wide: true },
+      { key: 'image', label: 'Logo (optional)', type: 'image', wide: true, help: 'A wide logo on a transparent or white background works best.' },
+      { key: 'url', label: 'Website link (optional)', type: 'url', wide: true, placeholder: 'https://…' },
+      published,
+    ],
   },
 };
 
@@ -279,9 +285,7 @@ export const SETTINGS_GROUPS: { id: string; title: string; fields: Field[] }[] =
       { key: 'tagline', label: 'Tagline under logo', type: 'text', wide: true },
       { key: 'personName', label: 'Full name', type: 'text' },
       { key: 'accentColor', label: 'Accent colour', type: 'color' },
-      { key: 'defaultFont', label: 'Default typography', type: 'select', options: ['A', 'B', 'C'], help: 'A = Modern, B = Newsroom, C = Editorial.' },
       { key: 'showPreloader', label: 'Show intro animation on first visit', type: 'bool' },
-      { key: 'showFontSwitcher', label: 'Let visitors switch typography', type: 'bool' },
       { key: 'showWhatsApp', label: 'Show floating WhatsApp button', type: 'bool' },
     ],
   },

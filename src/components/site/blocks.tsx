@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 import type { Award, Coverage, Demand, Feature, Settings, Stat, Story, TextItem, Unit, Video } from '@/lib/types';
 import { isNumeric, lines, videoThumb } from '@/lib/utils';
 import { Icon } from './Icon';
-import { Photo } from './Photo';
+import { Photo, SmartImg } from './Photo';
 
 export function Hd({ eyebrow, title, link }: { eyebrow: string; title: string; link?: [string, string] }) {
   return (
@@ -134,11 +134,19 @@ export function Logos({ s, items }: { s: Settings; items: TextItem[] }) {
       <span className="ey">{s.pressEyebrow}</span>
       <div className="mq" aria-label={s.pressEyebrow}>
         <div>
-          {loop.map((l, i) => (
-            <span key={i} aria-hidden={i >= items.length}>
-              {l.text}
-            </span>
-          ))}
+          {loop.map((l, i) => {
+            const inner = l.image ? <SmartImg src={l.image} alt={l.text} width={160} height={48} sizes="160px" className="mq-logo" /> : l.text;
+            const hidden = i >= items.length;
+            return l.url ? (
+              <a key={i} href={l.url} target="_blank" rel="noopener" aria-hidden={hidden} tabIndex={hidden ? -1 : undefined} title={l.text}>
+                <span>{inner}</span>
+              </a>
+            ) : (
+              <span key={i} aria-hidden={hidden} title={l.text}>
+                {inner}
+              </span>
+            );
+          })}
         </div>
       </div>
     </Sec>

@@ -18,8 +18,11 @@ npm run start
 
 ## Admin sign-in
 
-- Sign in with a login ID and password. Set `ADMIN_USERNAME` (defaults to `admin`) and `ADMIN_PASSWORD` in `.env.local` locally, or in Vercel's environment variables for the live site. In development you can also create the first login on `/admin/login`.
-- Change both any time under **Admin → Account**. The saved details then replace the environment variables, and other devices are signed out.
+- There are two logins:
+  - **Owner** (`SUPERADMIN_USERNAME`, default `owner`, and `SUPERADMIN_PASSWORD`): full control, including site settings, the Sangh pages, page sections, backups and the editor's login.
+  - **Editor** (`ADMIN_USERNAME`, default `admin`, and `ADMIN_PASSWORD`): daily content only. That covers news and blog, press coverage, photos (including bulk upload), videos, achievements, partner logos and the inbox.
+- Set them in `.env.local` locally, or in Vercel's environment variables for the live site. In development you can also create the first owner login on `/admin/login`.
+- Each user changes their own login under **Admin → My account**; the owner can also set the editor's login there. Saved logins replace the environment variables.
 - Never put real login details in the code: this repository is public.
 
 ## What the dashboard manages

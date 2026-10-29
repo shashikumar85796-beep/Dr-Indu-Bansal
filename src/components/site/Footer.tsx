@@ -43,7 +43,7 @@ export function Footer({ s }: { s: Settings }) {
           </div>
         </div>
         {script.length ? (
-          <div className="sc" style={{ position: 'static', fontSize: 26, transform: 'rotate(-6deg)', width: 'fit-content' }}>
+          <div className="sc" style={{ position: 'static', fontSize: 22, transform: 'none', width: 'fit-content' }}>
             {script.map((l, i) => (
               <span key={i}>
                 {i ? <br /> : null}

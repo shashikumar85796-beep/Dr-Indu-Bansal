@@ -1,49 +1,77 @@
 import Link from 'next/link';
-import { COLLECTIONS, COLLECTION_KEYS } from '@/lib/schema';
+import { requireAdmin, usernameFor } from '@/lib/auth';
+import { sectionsFor } from '@/lib/roles';
 import { getContent, getSubmissions, listUploads, storageLabel } from '@/lib/store';
+import type { CollectionKey } from '@/lib/types';
 
-export const metadata = { title: 'Overview' };
+export const metadata = { title: 'Dashboard' };
 
-export default async function Overview() {
-  const [c, subs, uploads] = await Promise.all([getContent(), getSubmissions(), listUploads()]);
+const QUICK: [string, string, string][] = [
+  ['/admin/c/stories/new', 'Write an update', 'News, blog post or announcement'],
+  ['/admin/c/gallery', 'Add photos', 'Upload many event photos at once'],
+  ['/admin/c/videos/new', 'Add a video', 'Paste a YouTube or Facebook link'],
+  ['/admin/c/coverage/new', 'Add press coverage', 'Link a newspaper report'],
+  ['/admin/c/awards/new', 'Add an achievement', 'Award, honour or new role'],
+  ['/admin/c/pressLogos/new', 'Add a partner logo', 'Partner or media outlet'],
+];
+
+const COUNTS: [CollectionKey, string, string][] = [
+  ['stories', 'Updates', '/admin/c/stories'],
+  ['coverage', 'Press reports', '/admin/c/coverage'],
+  ['gallery', 'Photos', '/admin/c/gallery'],
+  ['videos', 'Videos', '/admin/c/videos'],
+  ['awards', 'Achievements', '/admin/c/awards'],
+  ['pressLogos', 'Partner logos', '/admin/c/pressLogos'],
+];
+
+export default async function Overview({ searchParams }: { searchParams: Promise<{ denied?: string }> }) {
+  const role = await requireAdmin();
+  const [c, subs, uploads, username, sp] = await Promise.all([getContent(), getSubmissions(), listUploads(), usernameFor(role), searchParams]);
   const unread = subs.filter((s) => !s.read).length;
   const missingPhotos = c.gallery.filter((g) => g.published && !g.image).length + c.stories.filter((s) => s.published && !s.image).length;
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
 
   return (
     <>
+      {sp.denied ? <div className="notice">That section is managed by the site owner. Ask them if something there needs changing.</div> : null}
       <div className="a-top">
         <div>
-          <h1>Welcome back</h1>
-          <p>Everything on the website comes from here. Changes go live as soon as you save.</p>
+          <h1>
+            {greet}, {username}
+          </h1>
+          <p>Changes go live on the website as soon as you save.</p>
         </div>
         <div className="acts">
-          <Link className="btn" href="/admin/c/stories/new">
-            + New update
-          </Link>
-          <Link className="btn ghost" href="/admin/c/gallery/new">
-            + Add photo
-          </Link>
           <a className="btn ghost" href="/" target="_blank" rel="noopener">
-            View site ↗
+            View website ↗
           </a>
         </div>
       </div>
 
+      <h2 className="a-h">Quick actions</h2>
+      <div className="quick">
+        {QUICK.map(([href, title, sub]) => (
+          <Link key={href} href={href} className="qa">
+            <b>{title}</b>
+            <span>{sub}</span>
+            <i aria-hidden="true">+</i>
+          </Link>
+        ))}
+      </div>
+
+      <h2 className="a-h">On the website</h2>
       <div className="stats">
         <Link className="stat" href="/admin/inbox">
           <b>{unread}</b>
           <span>Unread messages</span>
         </Link>
-        {COLLECTION_KEYS.filter((k) => COLLECTIONS[k].group === 'Content').map((k) => (
-          <Link className="stat" key={k} href={`/admin/c/${k}`}>
-            <b>{c[k].length}</b>
-            <span>{COLLECTIONS[k].label}</span>
+        {COUNTS.map(([k, label, href]) => (
+          <Link className="stat" key={k} href={href}>
+            <b>{c[k].filter((x) => x.published).length}</b>
+            <span>{label}</span>
           </Link>
         ))}
-        <Link className="stat" href="/admin/media">
-          <b>{uploads.length}</b>
-          <span>Uploaded images</span>
-        </Link>
       </div>
 
       <div className="grid2">
@@ -73,40 +101,32 @@ export default async function Overview() {
           )}
         </div>
         <div className="card">
-          <h2 style={{ marginBottom: 12 }}>To do</h2>
+          <h2 style={{ marginBottom: 12 }}>Good to know</h2>
           <div className="list small">
             {missingPhotos ? (
               <p>
                 <b>{missingPhotos}</b> updates and gallery items still show placeholder art. Add real photos in{' '}
                 <Link href="/admin/c/gallery" style={{ color: 'var(--red)' }}>
-                  Photo gallery
-                </Link>{' '}
-                and{' '}
-                <Link href="/admin/c/stories" style={{ color: 'var(--red)' }}>
-                  Updates
+                  Media → Photos
                 </Link>
                 .
               </p>
             ) : (
               <p className="muted">Every published item has a photo.</p>
             )}
-            {!c.settings.facebook || !c.settings.youtube ? (
-              <p>
-                Add your Facebook and YouTube links in{' '}
-                <Link href="/admin/settings#contact" style={{ color: 'var(--red)' }}>
-                  Contact & social
-                </Link>{' '}
-                so they show in the footer.
-              </p>
+            <p className="muted">{uploads.length} images uploaded so far.</p>
+            {role === 'owner' ? (
+              <>
+                <p className="muted">Storage: {storageLabel()}</p>
+                <p>
+                  Sections you manage: {sectionsFor(role).filter((s) => s.ownerOnly).map((s) => s.label).join(', ')}, Site settings and{' '}
+                  <Link href="/admin/backup" style={{ color: 'var(--red)' }}>
+                    backups
+                  </Link>
+                  .
+                </p>
+              </>
             ) : null}
-            <p className="muted">Storage: {storageLabel()}</p>
-            <p>
-              Download a{' '}
-              <Link href="/admin/backup" style={{ color: 'var(--red)' }}>
-                backup
-              </Link>{' '}
-              now and then.
-            </p>
           </div>
         </div>
       </div>

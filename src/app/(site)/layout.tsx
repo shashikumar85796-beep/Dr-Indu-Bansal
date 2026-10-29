@@ -25,7 +25,7 @@ export default async function SiteLayout({ children }: { children: ReactNode }) 
       <Header logoFirst={s.logoFirst} logoAccent={s.logoAccent} tagline={s.tagline} joinCta={s.joinCta} />
       <main id="app">{children}</main>
       <Footer s={s} />
-      <FloatingTools whatsapp={s.whatsapp} greeting={s.waGreeting} showWa={s.showWhatsApp} showFont={s.showFontSwitcher} />
+      <FloatingTools whatsapp={s.whatsapp} greeting={s.waGreeting} showWa={s.showWhatsApp} />
       <Effects />
       <noscript>
         <style>{'.rv,.ld{opacity:1!important;transform:none!important}#pl{display:none}'}</style>

@@ -21,15 +21,12 @@ export const viewport: Viewport = {
 
 export default async function RootLayout({ children }: { children: ReactNode }) {
   const { settings: s } = await getContent();
-  // Runs before first paint: applies the visitor's saved theme and font, and shows the intro only once per tab.
-  const init = `(function(){try{var d=document.documentElement,t=localStorage.getItem('theme');if(t)d.dataset.theme=t;var f=${
-    s.showFontSwitcher ? "localStorage.getItem('font')" : 'null'
-  };if(f)d.dataset.font=f;if(sessionStorage.getItem('pl'))d.classList.add('nopl');sessionStorage.setItem('pl','1')}catch(e){}})()`;
+  // Runs before first paint: applies the visitor's saved theme and shows the intro only once per tab.
+  const init = `(function(){try{var d=document.documentElement,t=localStorage.getItem('theme');if(t)d.dataset.theme=t;if(sessionStorage.getItem('pl'))d.classList.add('nopl');sessionStorage.setItem('pl','1')}catch(e){}})()`;
 
   return (
     <html
       lang="en"
-      data-font={s.defaultFont}
       className={fontVars}
       style={{ '--red': s.accentColor } as CSSProperties}
       suppressHydrationWarning

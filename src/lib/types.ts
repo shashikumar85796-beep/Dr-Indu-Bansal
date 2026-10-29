@@ -57,6 +57,8 @@ export interface Stat extends Base {
 
 export interface TextItem extends Base {
   text: string;
+  image?: string;
+  url?: string;
 }
 
 export interface Unit extends Base {

@@ -1,4 +1,4 @@
-:root{--fh:var(--font-bricolage),var(--font-deva),sans-serif;--fb:var(--font-jakarta),var(--font-deva),system-ui,sans-serif;--bg:#fff;--ink:#16161a;--mute:#6a6a72;--soft:#fdf1f1;--line:#ececee;--red:#d3141c;--deep:color-mix(in srgb,var(--red) 80%,#000);--card:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+:root{--fh:var(--font-serif),var(--font-deva),Georgia,serif;--fb:var(--font-inter),var(--font-deva),system-ui,sans-serif;--bg:#fff;--ink:#16161a;--mute:#6a6a72;--soft:#fdf1f1;--line:#ececee;--red:#d3141c;--deep:color-mix(in srgb,var(--red) 80%,#000);--card:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#150e0e;--ink:#f5eeee;--mute:#a89d9d;--soft:#241414;--line:#2f2222;--card:#1c1212}}
 :root[data-theme="dark"]{--bg:#150e0e;--ink:#f5eeee;--mute:#a89d9d;--soft:#241414;--line:#2f2222;--card:#1c1212}
 html{scroll-behavior:smooth;color-scheme:light dark}
@@ -42,7 +42,7 @@ h1 em{font-style:normal;color:var(--red);display:block}
 .mp{left:0;top:0;width:60%;height:70%;background:radial-gradient(ellipse at 40% 40%,rgba(0,0,0,.08),transparent 65%)}
 .p1{left:6%;top:36%;width:34%;height:46%}.p2{right:0;top:41%;width:32%;height:40%;border-radius:6px}
 .p3{left:30%;bottom:0;width:46%;height:90%;--a:#b8a99b;--b:#3b302b;border-radius:6px 6px 0 0}
-.sc{right:-2%;top:2%;font:700 27px/1.05 var(--font-caveat),cursive;transform:rotate(-9deg)}
+.sc{right:-2%;top:2%;font:italic 600 24px/1.15 var(--fh);transform:rotate(-9deg)}
 .sc::after{content:"";display:block;height:3px;width:80%;background:var(--red);margin-top:4px;border-radius:3px;transform:rotate(-8deg)}
 .mic{left:52%;bottom:22%;background:#fff;color:var(--red);font:800 12.5px var(--fb);padding:6px 10px;border-radius:5px;transform:rotate(-6deg);box-shadow:0 6px 14px rgba(0,0,0,.2)}
 .hero2{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 24px 0;max-width:860px;margin:0 auto;overflow:hidden}
@@ -205,8 +205,6 @@ footer{border-top:1px solid var(--line);padding:30px 0 40px}
 @media (max-width:700px){#md .pv{left:6px}#md .nx{right:6px}}
 @media (prefers-reduced-motion:reduce){#pl{display:none}}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}.rv,.ld{opacity:1;transform:none}.mq div{animation:none}}
-html[data-font=B]{--fh:var(--font-ss4),var(--font-deva),Georgia,serif;--fb:var(--font-ssans),var(--font-deva),system-ui,sans-serif}
-html[data-font=C]{--fh:var(--font-fraunces),var(--font-deva),Georgia,serif;--fb:var(--font-inter),var(--font-deva),system-ui,sans-serif}
 .nopl #pl{display:none}
 .pt{animation:pt .45s cubic-bezier(.2,.7,.2,1)}
 @keyframes pt{from{opacity:0;transform:translateY(10px)}}
@@ -415,3 +413,18 @@ footer{padding:56px 0 0;background:var(--soft);border-top:0}
 @media (max-width:1000px){.uns,.cvs{grid-template-columns:1fr 1fr}.fw{grid-template-columns:1fr 1fr}.sgh,.sg{grid-template-columns:1fr}.hhi{justify-content:center}}
 @media (max-width:560px){.uns,.cvs,.fw{grid-template-columns:1fr}.dm{grid-template-columns:auto 1fr}.dm .st{grid-column:2;justify-self:start}.cred li{font-size:13px}}
 @media (max-width:560px){.h3t .ey{border-left:0;padding-left:0;line-height:1.5}}
+
+/* ===== Professional type: serif headings, Inter text ===== */
+h1,h2,h3,.lg b{font-weight:700;letter-spacing:-.01em}
+.hero3 h1.hname{font-weight:700;letter-spacing:-.025em;line-height:1}
+h2{letter-spacing:-.015em}
+.lg b{letter-spacing:.01em}
+.ey,.btn,.mn,.rc small,.cv-m b,.st{font-family:var(--fb)}
+.mq span{font-family:var(--fh);font-weight:700;letter-spacing:0}
+.mq span:nth-child(3n+1){font-style:normal}.mq span:nth-child(3n+2){text-transform:none}
+.badge b,.tr b,.stat b,.dm-n{font-family:var(--fh)}
+.sc::after{transform:none}
+body{font-size:16.5px;line-height:1.65}
+.mq a{color:inherit;text-decoration:none}
+.mq .mq-logo{height:40px;width:auto;max-width:180px;object-fit:contain;display:block;filter:grayscale(1);opacity:.75;transition:filter .3s,opacity .3s}
+.mq a:hover .mq-logo,.mq span:hover .mq-logo{filter:none;opacity:1}
