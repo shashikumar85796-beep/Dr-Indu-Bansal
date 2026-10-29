@@ -18,10 +18,10 @@ npm run start
 
 ## Admin sign-in
 
-- **Owner** (, default , and ): the site maintainer. Full control, plus setting the admin's login.
-- **Admin** (, default , and ): the client. Full control of the website, including settings, team and backups.
+- **Owner** (`SUPERADMIN_USERNAME`, default `owner`, and `SUPERADMIN_PASSWORD`): the site maintainer. Full control, plus setting the admin's login.
+- **Admin** (`ADMIN_USERNAME`, default `admin`, and `ADMIN_PASSWORD`): the client. Full control of the website, including settings, team and backups.
 - **Team members**: created by the owner or admin under **Team & access**, each with only the sections ticked for them (news, photos & videos, achievements, partner logos, Sangh pages, page sections, enquiries, analytics, settings). Changing or removing a member signs them out at once.
-- Each user changes their own login under **My account**. Saved logins replace the environment variables. In development you can also create the first owner login on .
+- Each user changes their own login under **My account**. Saved logins replace the environment variables. In development you can also create the first owner login on `/admin/login`.
 - Never put real login details in the code: this repository is public.
 
 ## What the dashboard manages
