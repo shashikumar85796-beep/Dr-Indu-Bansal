@@ -15,7 +15,14 @@ interface AuthFile {
   ver?: number;
 }
 
-const readAuth = () => readDoc<AuthFile>('auth', () => ({ secret: crypto.randomBytes(32).toString('hex'), ver: 0 }));
+// When storage can't persist the generated secret (Vercel before Redis is connected), a random one would
+// change on every request and no login would stick, so derive a stable one from ADMIN_PASSWORD instead.
+const fallbackSecret = () =>
+  process.env.ADMIN_PASSWORD
+    ? crypto.createHash('sha256').update(`session-secret:${process.env.ADMIN_PASSWORD}`).digest('hex')
+    : crypto.randomBytes(32).toString('hex');
+
+const readAuth = () => readDoc<AuthFile>('auth', () => ({ secret: fallbackSecret(), ver: 0 }));
 
 const key = async () => new TextEncoder().encode(process.env.SESSION_SECRET || (await readAuth()).secret);
 const hashPw = (pw: string, salt: string) => crypto.scryptSync(pw, salt, 64);
