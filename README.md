@@ -40,21 +40,21 @@ Every list supports add, edit, duplicate, delete, show/hide, search, and drag-to
 Storage is picked automatically:
 
 - **On Vercel:** Upstash Redis holds the content, inbox and login data, and Vercel Blob holds uploaded images.
-- **Locally:** everything lives in  (or ): , ,  and . It is git-ignored, so back it up.
+- **Locally:** everything lives in `data/` (or `DATA_DIR`): `content.json`, `submissions.json`, `auth.json` and `uploads/`. It is git-ignored, so back it up.
 
 The dashboard overview shows which storage is in use.
 
 ## Deploying to Vercel
 
-1. Import this repository in Vercel, or run  from this folder.
+1. Import this repository in Vercel, or run `npx vercel` from this folder.
 2. In the Vercel project, open **Storage** and add:
-   - **Upstash Redis** (from the Marketplace). This sets  and .
-   - **Blob**, created as a **public** store. This sets .
-3. In **Settings → Environment Variables**, add  (and optionally ).
+   - **Upstash Redis** (from the Marketplace). This sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`.
+   - **Blob**, created as a **public** store. This sets `BLOB_READ_WRITE_TOKEN`.
+3. In **Settings → Environment Variables**, add `ADMIN_PASSWORD` (and optionally `SESSION_SECRET`).
 4. Redeploy. On the first visit the site fills Redis with the starting content.
 
 Uploads larger than 3.5 MB are shrunk in the browser before upload, because Vercel limits request bodies to 4.5 MB.
 
 ## Performance
 
-Public pages are pre-rendered as static HTML and refreshed the moment you save in the dashboard. Fonts are self-hosted through , and images go through  (AVIF/WebP, resized per device).
+Public pages are pre-rendered as static HTML and refreshed the moment you save in the dashboard. Fonts are self-hosted through `next/font`, and images go through `next/image` (AVIF/WebP, resized per device).
