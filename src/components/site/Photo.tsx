@@ -3,11 +3,11 @@ import type { CSSProperties, HTMLAttributes, ReactNode } from 'react';
 
 // Gradient pairs used when no photo has been uploaded yet.
 const TONES = [
-  ['#8f9a6a', '#33401f'],
-  ['#a58b72', '#40332a'],
-  ['#b48a7c', '#4a2f2c'],
-  ['#8d9aa4', '#2f3b45'],
-  ['#a89678', '#3a3022'],
+  ['#c8323a', '#5e0b10'],
+  ['#2d3142', '#151821'],
+  ['#b07a54', '#4a2c1a'],
+  ['#3f5f73', '#1b2a35'],
+  ['#8a1c3c', '#3a0a19'],
 ];
 
 export const tone = (i: number) => {

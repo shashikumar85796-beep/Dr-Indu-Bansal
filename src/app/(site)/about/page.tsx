@@ -38,7 +38,7 @@ export default async function About() {
       </Sec>
       <StatStrip stats={visible(c.aboutStats)} />
       {visible(c.milestones).length ? (
-        <Sec>
+        <Sec alt>
           <Hd eyebrow={s.milestonesEyebrow} title={s.milestonesTitle} />
           <ul className="vt">
             {visible(c.milestones).map((m) => (

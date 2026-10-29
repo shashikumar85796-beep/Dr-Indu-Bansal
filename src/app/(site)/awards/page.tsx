@@ -24,7 +24,7 @@ export default async function Awards() {
         </Sec>
       ) : null}
       {roles.length ? (
-        <Sec>
+        <Sec alt>
           <Hd eyebrow="Roles" title="Leadership & Responsibilities" />
           <div className="al" style={{ gridTemplateColumns: 'repeat(2,1fr)' }}>
             {roles.map((a) => (

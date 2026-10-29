@@ -5,7 +5,7 @@ import { GalleryGrid } from '@/components/site/GalleryGrid';
 import { Icon } from '@/components/site/Icon';
 import { Photo, SmartImg } from '@/components/site/Photo';
 import { getContent } from '@/lib/store';
-import { visible } from '@/lib/utils';
+import { isNumeric, visible } from '@/lib/utils';
 
 const d = (s: string) => ({ '--d': s }) as CSSProperties;
 
@@ -18,6 +18,9 @@ export default async function Home() {
   const featured = videos.find((v) => v.featured) || videos[0];
   const sideVideos = videos.filter((v) => v !== featured).slice(0, 3);
   const portrait = s.aboutImage || s.heroImage;
+  const stats = visible(c.homeStats);
+  const numStat = stats.find((x) => isNumeric(x.value));
+  const textStat = stats.find((x) => !isNumeric(x.value));
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -32,33 +35,56 @@ export default async function Home() {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, '\\u003c') }} />
-      <div className="hero2">
-        <span className="ey ld">{s.heroEyebrow}</span>
-        <HeroTitle text={s.heroTitle} redFrom={s.heroRedFrom} />
-        <p className="t ld" style={d('.6s')}>
-          {s.heroText}
-        </p>
-        <div className="bt ld" style={d('.75s')}>
-          {s.heroCta1Label ? (
-            <Link className="btn" href={s.heroCta1Link || '/updates'}>
-              {s.heroCta1Label}
-            </Link>
-          ) : null}
-          {s.heroCta2Label ? (
-            <Link className="btn o" href={s.heroCta2Link || '/media'}>
-              {s.heroCta2Label}
-            </Link>
+      <section className="hero3" aria-label="Introduction">
+        <div className="w hero3-in">
+          <div className="h3t">
+            <span className="ey ld">{s.heroEyebrow}</span>
+            <HeroTitle text={s.heroTitle} redFrom={s.heroRedFrom} />
+            <p className="t ld" style={d('.55s')}>
+              {s.heroText}
+            </p>
+            <div className="bt ld" style={d('.7s')}>
+              {s.heroCta1Label ? (
+                <Link className="btn" href={s.heroCta1Link || '/updates'}>
+                  {s.heroCta1Label}
+                </Link>
+              ) : null}
+              {s.heroCta2Label ? (
+                <Link className="btn o" href={s.heroCta2Link || '/media'}>
+                  {s.heroCta2Label}
+                </Link>
+              ) : null}
+            </div>
+            <div className="h3m ld" style={d('.85s')}>
+              {s.location ? <span>{s.location}</span> : null}
+              {s.instagramHandle ? <span>{s.instagramHandle}</span> : null}
+            </div>
+          </div>
+          {s.heroImage ? (
+            <div className="h3v ld" style={d('.4s')}>
+              <div className="arch" />
+              <SmartImg src={s.heroImage} alt={s.personName} width={372} height={544} sizes="(max-width:1000px) 80vw, 460px" eager />
+              {numStat ? (
+                <div className="badge b1">
+                  <b>
+                    {numStat.value}
+                    {numStat.suffix}
+                  </b>
+                  <span>{numStat.label}</span>
+                </div>
+              ) : null}
+              {textStat ? (
+                <div className="badge b2 t">
+                  <b>{textStat.value}</b>
+                  <span>{textStat.label}</span>
+                </div>
+              ) : null}
+            </div>
           ) : null}
         </div>
-        {s.heroImage ? (
-          <div className="hp ld" style={d('.9s')}>
-            <div className="ring" />
-            <SmartImg src={s.heroImage} alt={s.personName} width={372} height={544} sizes="(max-width:560px) 70vw, 372px" eager />
-          </div>
-        ) : null}
-      </div>
+      </section>
 
-      <StatStrip stats={visible(c.homeStats)} />
+      <StatStrip stats={stats} />
 
       <Sec>
         <Hd eyebrow={s.servicesEyebrow} title={s.servicesTitle} />
@@ -73,7 +99,7 @@ export default async function Home() {
         </div>
       </Sec>
 
-      <section className="rv">
+      <section className="rv alt">
         <div className="w ab">
           <div>
             <span className="ey">About Me</span>
@@ -108,7 +134,7 @@ export default async function Home() {
       </Sec>
 
       {stories.length ? (
-        <Sec>
+        <Sec alt>
           <Hd eyebrow={s.updatesEyebrow} title={s.updatesTitle} link={['/updates', 'All updates']} />
           <div className="g4">
             {stories.map((st, i) => (
@@ -130,7 +156,7 @@ export default async function Home() {
       ) : null}
 
       {featured ? (
-        <Sec>
+        <Sec alt>
           <div className="vd">
             <div>
               <span className="ey">{s.videoEyebrow}</span>

@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { NAV } from '@/lib/nav';
 import type { Settings } from '@/lib/types';
-import { lines } from '@/lib/utils';
+import { lines, waLink } from '@/lib/utils';
 import { Socials } from './blocks';
 
 export function Footer({ s }: { s: Settings }) {
@@ -17,6 +17,7 @@ export function Footer({ s }: { s: Settings }) {
             <small>{s.tagline}</small>
           </div>
           {s.footerText}
+          <Socials s={s} />
         </div>
         <div>
           <h4>Quick Links</h4>
@@ -26,11 +27,21 @@ export function Footer({ s }: { s: Settings }) {
                 {label}
               </Link>
             ))}
+            <Link href="/join">Join the Sangh</Link>
           </div>
         </div>
         <div>
-          <h4>Follow Me</h4>
-          <Socials s={s} />
+          <h4>Contact</h4>
+          <div className="fc">
+            {s.location ? <span>{s.location}</span> : null}
+            {s.phone ? <a href={`tel:${s.phone.replace(/[^\d+]/g, '')}`}>{s.phone}</a> : null}
+            {s.email ? <a href={`mailto:${s.email}`}>{s.email}</a> : null}
+            {s.whatsapp ? (
+              <a href={waLink(s.whatsapp, s.waGreeting)} target="_blank" rel="noopener">
+                Chat on WhatsApp ↗
+              </a>
+            ) : null}
+          </div>
         </div>
         {script.length ? (
           <div className="sc" style={{ position: 'static', fontSize: 26, transform: 'rotate(-6deg)', width: 'fit-content' }}>
@@ -42,6 +53,12 @@ export function Footer({ s }: { s: Settings }) {
             ))}
           </div>
         ) : null}
+      </div>
+      <div className="w fb">
+        <span>
+          © {new Date().getFullYear()} {s.personName}. All rights reserved.
+        </span>
+        <span>{s.tagline.split('|').pop()?.trim()}</span>
       </div>
     </footer>
   );

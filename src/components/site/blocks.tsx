@@ -21,9 +21,9 @@ export function Hd({ eyebrow, title, link }: { eyebrow: string; title: string; l
   );
 }
 
-export function Sec({ children, className = '' }: { children: ReactNode; className?: string }) {
+export function Sec({ children, className = '', alt }: { children: ReactNode; className?: string; alt?: boolean }) {
   return (
-    <section className={`rv ${className}`}>
+    <section className={`rv ${className}${alt ? ' alt' : ''}`}>
       <div className="w">{children}</div>
     </section>
   );
